@@ -1,0 +1,38 @@
+things that exist on the device:
+	adcs
+	dacs?
+	gpios
+	pwms
+
+messages to send:
+	request data from gpio
+	request data from adc
+	request continual transfer from adc
+
+desiderata:
+	limited resending so we don't need to do it in app code
+
+
+
+HDLC:
+	tiny is secondary station
+	som is primary station
+
+using sequence and ack numbers, we can get reliability
+(seq, ack)
+
+HOST: send (0,0).h, CLIENT: send (0,0).c
+HOST: send (1,1).h, CLIENT: send (1,1).c
+continue like so
+
+now suppose we have an error
+HOST: send (0,0).h, CLIENT: send (0,0).c, client message fails chksum
+HOST: send (1,0).h, CLIENT: send (1,1).c
+now client sees it has a problem and sends
+HOST: send (2,0).h, CLIENT: send (0,2).c, this time it passes chksum
+HOST: send (3,1).h, CLIENT: send (1,3).c, back to sync
+
+these ack/send numbers do not need to be large, can use 4 bits each and put them in a byte. This also means we can easily bound the number of elements in a holding array
+
+
+
