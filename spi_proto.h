@@ -2,6 +2,10 @@
 //Queue is 16 so that all seq and ack values are valid indexes
 #define SPI_MSG_QUEUE_SIZE 16
 
+#ifdef CPP
+extern "C" {
+#endif
+
 struct __attribute__((packed)) spi_packet {
 	uint8_t magic; // includes at least a version number
 	uint8_t seq : 4;
@@ -62,7 +66,7 @@ void
 print_spi_packet(struct spi_packet *p);
 
 void
-spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, , spi_msg_callback_t cb);
+spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, spi_msg_callback_t cb);
 int
 spi_proto_prep_msg(struct spi_state *s, void *buf, int n);
 int
@@ -70,3 +74,7 @@ spi_proto_send_msg(struct spi_state *s, void *buf, int n);
 
 uint16_t
 spi_msg_crc(struct spi_packet *p);
+
+#ifdef CPP
+} // extern C
+#endif

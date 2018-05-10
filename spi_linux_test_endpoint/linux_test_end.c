@@ -20,9 +20,10 @@
 #include <sys/ioctl.h>
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
+#include <time.h>
 
 #include <string.h>
-#include "spi_proto.h"
+#include "../spi_proto.h"
 
 #define SPI_TRANSFER_LEN sizeof(struct spi_packet)
 
@@ -59,7 +60,7 @@ static void transfer(int fd)
 	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
 	if (ret < 1)
 		pabort("can't send spi message");
-
+	return;
 	for (ret = 0; ret < ARRAY_SIZE(spi_out_buf); ret++) {
 		if (!(ret % 12))
 			puts("");
@@ -201,12 +202,17 @@ int main(int argc, char *argv[])
 	printf("bits per word: %d\n", bits);
 	printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
 
+	//struct timespec time_100ms;
+	//time_100ms.tv_sec = 0;
+	//time_100ms.tv_nsec = 1*1000000;//10 * 1ms
+
+	//time_100ms.tv_nsec = 1*5;//10 * 1ms
 	struct spi_state s;
 	spi_proto_initialize(&s);
 	first_loop();
-	for (int i = 0; i < 3; i++) {
+	for (;;){//(int i = 0; i < 500; i++) {
 		loop(&s, fd);
-		sleep(1);
+		//nanosleep(&time_100ms, NULL);
 	}
 	//transfer(fd);
 
@@ -218,6 +224,12 @@ int main(int argc, char *argv[])
 void
 linux_test_callback(struct spi_packet *p)
 {
+	if (!p->msg[0]) return;
+	char strbuf[33];
+	memcpy(strbuf, p->msg, 32);
+	strbuf[32] = 0;
+	printf("got msg:[ %s ]\n", strbuf);
+	return;
 	//TODO print it out or something
 	uint8_t *s = (uint8_t *) p;
 	for (int i = 0; i < sizeof(struct spi_packet);i++)
@@ -259,8 +271,8 @@ loop(struct spi_state *s, int spi_fd)
 	spi_proto_prep_msg(s, spi_out_buf, SPI_TRANSFER_LEN);
 	
 	//edbug output
-	puts("sending");
-	print_bytes(spi_out_buf, SPI_TRANSFER_LEN);
+	//puts("sending");
+//	print_bytes(spi_out_buf, SPI_TRANSFER_LEN);
 	
 	//do transaction
 	transfer(spi_fd);
@@ -271,7 +283,8 @@ loop(struct spi_state *s, int spi_fd)
 	//TODO maybe fixup the CRC byte order?
 	
 	//process received message
+	//puts("before rcv_msg");
 	spi_proto_rcv_msg(s, &pack, linux_test_callback);
-	
-	print_spi_state(s);
+	//puts("after rcv_msg");	
+//	print_spi_state(s);
 }
