@@ -21,8 +21,6 @@
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
 #include <time.h>
-
-#include <string.h>
 #include "../spi_proto.h"
 
 #define SPI_TRANSFER_LEN sizeof(struct spi_packet)
@@ -44,8 +42,8 @@ static uint16_t delay;
 #define SPI_TRANSFER_SIZE SPI_PACKET_LEN
 
 //TODO make this less brittle
-uint8_t spi_in_buf[SPI_TRANSFER_SIZE], spi_out_buf[SPI_TRANSFER_SIZE];
-static void transfer(int fd)
+extern uint8_t spi_in_buf[SPI_TRANSFER_SIZE], spi_out_buf[SPI_TRANSFER_SIZE];
+void transfer(int fd)
 {
 	int ret;
 	struct spi_ioc_transfer tr = {
@@ -202,15 +200,10 @@ int main(int argc, char *argv[])
 	printf("bits per word: %d\n", bits);
 	printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
 
-	//struct timespec time_100ms;
-	//time_100ms.tv_sec = 0;
-	//time_100ms.tv_nsec = 1*1000000;//10 * 1ms
-
-	//time_100ms.tv_nsec = 1*5;//10 * 1ms
 	struct spi_state s;
 	spi_proto_initialize(&s);
 	first_loop();
-	for (;;){//(int i = 0; i < 500; i++) {
+	for (int i = 0; i < 10; i++) {
 		loop(&s, fd);
 		//nanosleep(&time_100ms, NULL);
 	}
@@ -221,70 +214,3 @@ int main(int argc, char *argv[])
 	return ret;
 }
 
-void
-linux_test_callback(struct spi_packet *p)
-{
-	if (!p->msg[0]) return;
-	char strbuf[33];
-	memcpy(strbuf, p->msg, 32);
-	strbuf[32] = 0;
-	printf("got msg:[ %s ]\n", strbuf);
-	return;
-	//TODO print it out or something
-	uint8_t *s = (uint8_t *) p;
-	for (int i = 0; i < sizeof(struct spi_packet);i++)
-		printf("%02x ", s[i]);
-	printf("\n");
-}
-
-
-void
-print_bytes(unsigned char *b, int n)
-{
-	for (int i = 0; i < n;i++)
-		printf("%02x ", b[i]);
-	printf("\n");
-}
-void
-first_loop(void)
-{
-	//TODO set up communications and initialize SPI
-}
-void
-loop(struct spi_state *s, int spi_fd)
-{
-	/* TODO loop:
-		do whatever testing processing (message sending, for example)
-		marshal messages into buffers
-		do the transaction
-		process the received message
-	*/
-	
-	
-	//load messages into queue if any
-	int N = 10;
-	unsigned char m2s[10] = {2,3,5,7,11,13,17,19,23, 29};
-	// TODO send other messages
-	while(!spi_proto_send_msg(s, m2s, N));
-	
-	//message sending
-	spi_proto_prep_msg(s, spi_out_buf, SPI_TRANSFER_LEN);
-	
-	//edbug output
-	//puts("sending");
-//	print_bytes(spi_out_buf, SPI_TRANSFER_LEN);
-	
-	//do transaction
-	transfer(spi_fd);
-	
-	//process buffer into struct
-	struct spi_packet pack;
-	memcpy(&pack, spi_in_buf, SPI_TRANSFER_LEN);
-	//TODO maybe fixup the CRC byte order?
-	
-	//process received message
-	//puts("before rcv_msg");
-	spi_proto_rcv_msg(s, &pack, linux_test_callback);
-	//puts("after rcv_msg");	
-//	print_spi_state(s);
-}
