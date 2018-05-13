@@ -20,66 +20,111 @@ extern "C" {
 extern "C" {
 #endif
 
+	//TODO to confirm proper sending of 0
+	/*
+		seq=0 ->
+		<- preack=0
+	this means 0 could be sent correctly. if we receive preack=1 next round, we know seq 0 was received
+	*/
+	//TODO oldest_unconfirmed_seq is wrong
 void
 spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, spi_msg_callback_t f)
 {
 	uint16_t rcvd_crc = p->crc;
 	uint16_t calc_crc = spi_msg_crc(p);
+#ifdef DEBUG_SPI_PROTO
 	printf("rcvd_crc: 0x%04x\n", rcvd_crc);
 	printf("calc_crc: 0x%04x\n", calc_crc);
+	print_spi_state(s);
+	printf("p->seq: %d\n", p->seq);
+#endif
 	//validate checksum. If it's wrong, take no action. The lack of change in our ACK will be the signal the other side needs.
 	//if the checksum is correct, verify that p->seq == s->their_next_ack. If so, increase their_next_ack. If not, take no action, they will resend.
 	if (rcvd_crc == calc_crc) {
-		//TODO put the compose_unfailing checks here
 		if (p->seq == s->we_sent_preack) { // the seq they sent, vs the preack we sent
 			s->our_next_preack++;
 			s->our_next_preack %= 16; // this isn't really a magic number because bytes aren't changing size anytime soon
+			//process it
+			if (f)
+				f(p);
+			else {
+				//can't take an action
+	#ifdef DEBUG_SPI_PROTO
+				printf("%s: no function provided!\n", __func__);
+	#endif
+			}
 		} else {
-			//TO CONFIRM probably nothing, but how to handle a desync? is such a desync even possible?
+			//TODO CONFIRM probably nothing, but how to handle a desync? is such a desync even possible?
 			//take no action on this side. Either our message was sent correctly (so the other side knows to change) or it wasn't, so they don't have any information about what we expect but they can learn later. XXX possible optimization would be to revert to last-known-expected if an incoming message is garbled, look at that later
 		}
 
 		// if this round we got N preack and last round we got N-1, mark N-1 as confirmed
-		if (((s->last_round_rcvd_preack + 1)%16) == p->preack) {
+#ifdef DEBUG_SPI_PROTO
+#define PRINTIT(x) printf( #x ": %d\n", x)
+		PRINTIT(s->our_prev_sent_seq);
+		PRINTIT(s->last_round_rcvd_preack);
+		printf("last_round_rcvd_preack + 1 = %d\n",(s->last_round_rcvd_preack + 1)%16);
+		PRINTIT(p->preack);
+#undef PRINTIT
+#endif
+		if ( (s->our_prev_sent_seq == s->last_round_rcvd_preack)
+			&& ((s->last_round_rcvd_preack + 1)%16) == p->preack) {
 			// mark s->last_round_rcvd_preack as confirmed and those before it in the sent_but_unconfirmed section
 			// a position P is in a range of the queue if the start S of the queue slice and the length L of the queue slice include it, so if S + k = P mod 16 and 0 <= k <= L
 			//TODO improve this bad algorithm (written while tired)
-			for (int k = 0; k < s->num_sent_but_unconfirmed; k++) {
-				if (((s->first_unconfirmed_seq + k) % 16)==s->last_round_rcvd_preack) {
-					s->num_sent_but_unconfirmed -= k;
-					s->num_avail += k;
-					s->first_unconfirmed_seq += k;
-					s->first_unconfirmed_seq %= 16;
-					
-					s->num_sent_successfully +=k;
-					break;
-				}
-			} 
-		} 
+#ifdef DEBUG_SPI_PROTO
+			puts ("case triggered");
+#endif
+			s->num_sent_but_unconfirmed--;
+			s->num_avail++;
+			s->num_sent_successfully++;
+			s->first_unconfirmed_seq++;
+		}
 		if (p->preack == s->we_sent_seq) {
 			//the anticipatory ack was the same as our send, so assume send was successful and increment. If it wasn't we'll find out next completed round
 			//send the next packet (by incrementing seq which changes the index)
-			s->our_seq++;
-			s->our_seq %= 16;
+			//TODO mark this location as confirmed phase 1 also
+			//s->waiting_for_confirm = p->preack;
+			//TODO moved this to prep_msg. erase when shown correct
+			//s->our_seq++;
+			//s->our_seq %= 16;
 		} else {
 			//reset our send counter to the most recent received "expected ack"
-			s->our_seq = s->oldest_unconfirmed_seq; 
+			//next sent is first_unsent so resend it, like go-back-n
+			//TODO determine if a more appropriate response is needed
+			//TODO print these out and check validity
+			//TODO find difference between s->first_unsent_seq = s->first_unconfirmed_seq, subtract from num_unconfirmed, add to num_unent
+			int diff;
+			if (s->first_unsent_seq < s->first_unconfirmed_seq) {
+				diff = s->first_unsent_seq + 16 - s->first_unconfirmed_seq;
+			} else {
+				diff = s->first_unsent_seq - s->first_unconfirmed_seq;
+			}
+			printf("diff: %d %d -> %d\n", s->first_unsent_seq, s->first_unconfirmed_seq, diff);
+			s->num_unsent += diff;
+			s->num_sent_but_unconfirmed -= diff;
+			//TODO assert s->num_sent_but_unconfirmed >= 0
+			s->first_unsent_seq = s->first_unconfirmed_seq;
+			s->our_seq = s->first_unsent_seq;
+#ifdef DEBUG_SPI_PROTO
+			if (p->preack != s->our_seq) {
+				puts("first_unconfirmed_seq was out of sync with counterpart's preack");
+			}
+#endif
 			//this will either not move the line of messages that must be kept forward, or move it forward by one
 		}
 		//handle releasing messages that were being held for resending. Release those with confirmed receipt. This is done by freeing that space in the message queue.
 		//this means release held messages before this p->preack. Write a loop, but it will only ever clear one at a time I think.
 		
 		//no queue modification necessary, just modify the variables holding the information about the queue.
-		//TODO is this manipulation valid always?
-		s->oldest_unconfirmed_seq = p->preack; // not + 1 because it's PREack
 		
 		
 		//set up last_round values for future use
 		s->last_round_rcvd_seq = p->seq;
 		s->last_round_rcvd_preack = p->preack;
-
-		//FINALLY call the actual user to do something
-		f(p);
+		s->our_prev_sent_seq = s->we_sent_seq;
+		s->our_prev_sent_preack = s->we_sent_preack;
+		//done bookkeeping. don't process message because it's not the right time
 	} else {
 		//no action. XXX possibly increment send counter but seems likely we will have to go back anyway so don't
 		puts("bad crc!");
@@ -91,7 +136,6 @@ spi_proto_prep_msg(struct spi_state *s, void *buf, int n)
 {
 	//give it the buffer to write the message into
 	//TODO make #defs for return values
-	//TODO implement. return -1 if n is too short
 	if (n < SPI_PACKET_LEN) return -1;
 	//if no message just write all zeros but still write the SEQ/ACK/CRC
 	//do the seq/ack/crc insertion in this function
@@ -104,12 +148,15 @@ spi_proto_prep_msg(struct spi_state *s, void *buf, int n)
 		s->queue[s->first_unsent_seq].preack = s->our_next_preack;
 		s->we_sent_preack = s->our_next_preack;
 		
+		s->queue[s->first_unsent_seq].magic = SPI_PROTO_MAGIC_REAL;
 		pack = &s->queue[s->first_unsent_seq];
 		
 		//TODO maybe bump seq?
 		s->queue[s->first_unsent_seq].crc = spi_msg_crc(&s->queue[s->first_unsent_seq]);
 		s->first_unsent_seq++;
 		s->first_unsent_seq %= 16;
+		s->our_seq++;
+		s->our_seq %= 16;
 		s->num_unsent--;
 		s->num_sent_but_unconfirmed++;
 	} else {
@@ -117,6 +164,7 @@ spi_proto_prep_msg(struct spi_state *s, void *buf, int n)
 		memset(&p,0,sizeof(struct spi_packet));
 		p.seq = s->our_seq;
 		p.preack = s->our_next_preack;
+		p.magic = SPI_PROTO_MAGIC_FILLER;
 		p.crc = spi_msg_crc(&p);
 		pack = &p;
 	}
@@ -174,7 +222,6 @@ spi_proto_initialize(struct spi_state *s)
 void
 print_spi_state(struct spi_state *s)
 {
-	return;
 #define PRINTIT(x) printf( #x ": %d\n", s-> x)
 	if (s) {
 		printf("our_seq: %d\n", s->our_seq);
@@ -186,8 +233,6 @@ print_spi_state(struct spi_state *s)
 		PRINTIT(last_round_rcvd_seq);
 		PRINTIT(last_round_rcvd_preack);
 		PRINTIT(num_sent_successfully);
-	
-		PRINTIT(oldest_unconfirmed_seq);
 	
 		PRINTIT(first_unconfirmed_seq);
 		PRINTIT(first_unsent_seq);
