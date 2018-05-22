@@ -31,9 +31,9 @@ reconstruct_slave_msg(struct spi_packet *p)
 	int msg_real = p->magic == SPI_PROTO_MAGIC_REAL;
 	//printf("reconstructing slave: %d\n", ix);
 	//print_bytes(p, sizeof(struct spi_packet));
-	if (p->magic == SPI_PROTO_MAGIC_REAL && ix < BIG_ROUNDS)
+	if (ix < BIG_ROUNDS)
 		memcpy(master_result_msg + ix*SPI_MSG_PAYLOAD_LEN, &p->msg, SPI_MSG_PAYLOAD_LEN);
-	if (msg_real) ix++;
+	ix++;
 }
 void
 reconstruct_master_msg(struct spi_packet *p)
@@ -42,10 +42,10 @@ reconstruct_master_msg(struct spi_packet *p)
 	int msg_real = p->magic == SPI_PROTO_MAGIC_REAL;
 	printf("reconstructing master: %d real? %d\n", ix, msg_real);
 	print_bytes(p, sizeof(struct spi_packet), -1);
-	if (p->magic == SPI_PROTO_MAGIC_REAL && ix < BIG_ROUNDS)
+	if (ix < BIG_ROUNDS)
 		memcpy(slave_result_msg + ix*SPI_MSG_PAYLOAD_LEN, &p->msg, SPI_MSG_PAYLOAD_LEN);
 	print_bytes(slave_result_msg, BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN, SPI_MSG_PAYLOAD_LEN);
-	if (msg_real) ix++;
+	ix++;
 }
 int
 test_big_transmit_noise(int rounds, float noise_chance)

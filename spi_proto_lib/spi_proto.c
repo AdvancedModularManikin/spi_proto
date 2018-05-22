@@ -19,14 +19,6 @@ extern "C" {
 #ifdef CPP
 extern "C" {
 #endif
-
-	//TODO to confirm proper sending of 0
-	/*
-		seq=0 ->
-		<- preack=0
-	this means 0 could be sent correctly. if we receive preack=1 next round, we know seq 0 was received
-	*/
-	//TODO oldest_unconfirmed_seq is wrong
 void
 spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, spi_msg_callback_t f)
 {
@@ -45,13 +37,16 @@ spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, spi_msg_callback_t 
 			s->our_next_preack++;
 			s->our_next_preack %= 16; // this isn't really a magic number because bytes aren't changing size anytime soon
 			//process it
-			if (f)
-				f(p);
-			else {
-				//can't take an action
+			if (p->magic == SPI_PROTO_MAGIC_REAL) {
+				s->num_received_successfully++;
+				if (f)
+					f(p);
+				else {
+					//can't take an action
 	#ifdef DEBUG_SPI_PROTO
-				printf("%s: no function provided!\n", __func__);
+					printf("%s: no function provided!\n", __func__);
 	#endif
+				}
 			}
 		} else {
 			//TODO CONFIRM probably nothing, but how to handle a desync? is such a desync even possible?

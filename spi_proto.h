@@ -55,6 +55,7 @@ struct spi_state {
 	
 	//logging of sorts
 	int num_sent_successfully;
+	int num_received_successfully;
 	
 	//occupancy controls
 	uint8_t num_unsent;
