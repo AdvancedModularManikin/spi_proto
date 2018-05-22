@@ -251,7 +251,6 @@ test_big_transmit_noise(int rounds, float noise_chance)
 	spi_proto_initialize(&master);
 	spi_proto_initialize(&slave);
 	
-	int N = 10;
 	unsigned char master_source_msg[BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN];
 	unsigned char slave_source_msg[BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN];
 	for (int i = 0; i < BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN; i++) {

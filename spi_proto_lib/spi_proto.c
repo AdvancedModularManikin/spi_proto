@@ -161,12 +161,18 @@ spi_proto_prep_msg(struct spi_state *s, void *buf, int n)
 		s->num_sent_but_unconfirmed++;
 	} else {
 		//safe to send seq here because of s->first_unsent_seq
+		//still need to update our own sending stuff
 		memset(&p,0,sizeof(struct spi_packet));
 		p.seq = s->our_seq;
 		p.preack = s->our_next_preack;
 		p.magic = SPI_PROTO_MAGIC_FILLER;
 		p.crc = spi_msg_crc(&p);
 		pack = &p;
+		
+		s->we_sent_seq = s->our_seq;
+		s->we_sent_preack = s->our_next_preack;
+		s->our_seq++;
+		s->our_seq %= 16;
 	}
 	memset(buf, 0, SPI_PACKET_LEN);
 	memcpy(buf, pack, SPI_PACKET_LEN);
