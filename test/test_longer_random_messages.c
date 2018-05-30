@@ -8,18 +8,9 @@
 #include "spi_proto.h"
 #include "config.h"
 #include "misc/crc16.h"
+#include "test/test_util.h"
 
 //SPI protocol testing
-void
-print_bytes(void *buf, size_t n, size_t wrap)
-{
-	//TODO if ended on a newline don't print another
-	for (int i = 0; i < n;i++) {
-		printf("%02x ", ((unsigned char *) buf)[i]);
-		if (i % wrap == (wrap-1) && i > 0) puts("");
-	}
-	printf("\n");
-}
 
 #define BIG_ROUNDS 7
 unsigned char master_result_msg[BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN];

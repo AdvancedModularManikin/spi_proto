@@ -9,15 +9,9 @@
 #include "config.h"
 #include "misc/crc16.h"
 
+#include "test/test_util.h"
+
 //SPI protocol testing
-void
-print_bytes(void *buf, size_t n)
-{
-	for (int i = 0; i < n;i++) {
-		printf("%02x ", ((unsigned char *) buf)[i]);
-	}
-	printf("\n");
-}
 void
 test_spi_proto_initialize(void)
 {	
@@ -48,7 +42,7 @@ test_spi_proto_initialize(void)
 }
 
 void
-test_spi_proto_one_round(unsigned char *m2s, unsigned char *s2m, int len)
+test_spi_proto_one_round(unsigned char *m2s, unsigned char *s2m, size_t len)
 {
 	struct spi_state master, slave;
 	
@@ -305,26 +299,26 @@ test_big_transmit_noise(int rounds, float noise_chance)
 		print_spi_state(&master);
 		//*
 		puts("master received:");
-		print_bytes(&slave_to_master, sizeof(slave_to_master));
+		print_bytes(&slave_to_master, sizeof(slave_to_master), -1);
 		puts("slave received:");
-		print_bytes(&master_to_slave, sizeof(master_to_slave));
+		print_bytes(&master_to_slave, sizeof(master_to_slave), -1);
 		puts("------------------");
 		//*/
 		
 	}
 	puts("total transmit m->s:");
-	print_bytes(master_source_msg, BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN);
+	print_bytes(master_source_msg, BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN, SPI_MSG_PAYLOAD_LEN);
 	uint16_t m_s_crc = crc16_block(0, master_source_msg, BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN);
 	puts("...");
-	print_bytes(slave_result_msg, BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN);
+	print_bytes(slave_result_msg, BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN, SPI_MSG_PAYLOAD_LEN);
 	uint16_t s_r_crc = crc16_block(0, slave_result_msg, BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN);
 	printf("%04x should = %04x\n", m_s_crc, s_r_crc);
 	
 	puts("total transmit s->m:");
-	print_bytes(slave_source_msg, BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN);
+	print_bytes(slave_source_msg, BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN, SPI_MSG_PAYLOAD_LEN);
 	uint16_t s_s_crc = crc16_block(0, slave_source_msg, BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN);
 	puts("...");
-	print_bytes(master_result_msg, BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN);
+	print_bytes(master_result_msg, BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN, SPI_MSG_PAYLOAD_LEN);
 	uint16_t m_r_crc = crc16_block(0, master_result_msg, BIG_ROUNDS*SPI_MSG_PAYLOAD_LEN);
 	printf("%04x should = %04x\n", s_s_crc, m_r_crc);
 	

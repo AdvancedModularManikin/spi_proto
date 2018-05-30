@@ -78,13 +78,15 @@ void
 print_spi_state_full(struct spi_state *s);
 void
 print_spi_packet(struct spi_packet *p);
+void
+print_spi_occs(struct spi_state *p);
 
 void
 spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, spi_msg_callback_t cb);
 int
-spi_proto_prep_msg(struct spi_state *s, void *buf, int n);
+spi_proto_prep_msg(struct spi_state *s, void *buf, size_t n);
 int
-spi_proto_send_msg(struct spi_state *s, void *buf, int n);
+spi_proto_send_msg(struct spi_state *s, void *buf, size_t n);
 
 uint16_t
 spi_msg_crc(struct spi_packet *p);

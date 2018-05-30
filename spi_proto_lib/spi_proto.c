@@ -127,7 +127,7 @@ spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, spi_msg_callback_t 
 }
 
 int
-spi_proto_prep_msg(struct spi_state *s, void *buf, int n)
+spi_proto_prep_msg(struct spi_state *s, void *buf, size_t n)
 {
 	//give it the buffer to write the message into
 	//TODO make #defs for return values
@@ -175,7 +175,7 @@ spi_proto_prep_msg(struct spi_state *s, void *buf, int n)
 }
 
 int
-spi_proto_send_msg(struct spi_state *s, void *buf, int n)
+spi_proto_send_msg(struct spi_state *s, void *buf, size_t n)
 {
 	//this puts the message in the queue, or returns -1
 	//TODO add #defs for return values
@@ -184,8 +184,8 @@ spi_proto_send_msg(struct spi_state *s, void *buf, int n)
 	//no need to modify other fields of message, that is handled when it's about to be sent
 	if (s->num_avail) {
 		//copy to buffer, maintain invariants
-		memset(s->queue[s->first_avail_seq].msg, 0, n);
-		memcpy(s->queue[s->first_avail_seq].msg, buf, n);
+		memset(s->queue[s->first_avail_seq].msg, 0, SPI_MSG_PAYLOAD_LEN);
+		memcpy(&s->queue[s->first_avail_seq].msg, buf, n);
 		s->first_avail_seq++;
 		s->first_avail_seq %= 16;
 		s->num_avail--;
@@ -245,6 +245,16 @@ print_spi_state(struct spi_state *s)
 	} else {
 		puts("spi_state NULL!");
 	}
+#undef PRINTIT
+}
+
+void
+print_spi_occs(struct spi_state *s)
+{
+#define PRINTIT(x) printf( #x ": %d\n", s-> x)
+	PRINTIT(num_unsent);
+	PRINTIT(num_sent_but_unconfirmed);
+	PRINTIT(num_avail);
 #undef PRINTIT
 }
 

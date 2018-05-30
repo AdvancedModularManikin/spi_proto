@@ -1,5 +1,3 @@
-AMM_SOURCE=../../amm-tiny/source
-
 linux_test_end: linux_test_end.c ../spi_proto.h spi_proto.o crc16.o monitor
 	gcc -o linux_test_end linux_test_end.c monitor.o -L. -lspiproto -std=c99
 
@@ -16,11 +14,11 @@ clean:
 	rm -f monitor.o
 	rm -f linux_test_end
 
-spi_proto.o: $(AMM_SOURCE)/spi_proto.cpp $(AMM_SOURCE)/spi_proto.h
-	gcc -c -x c $(AMM_SOURCE)/spi_proto.cpp -std=c99
+spi_proto.o: ../spi_proto_lib/spi_proto.c ../spi_proto.h
+	gcc -c -x c ../spi_proto_lib/spi_proto.c -std=c99 -I..
 
-crc16.o: $(AMM_SOURCE)/crc16.cpp
-	gcc -x c -c $(AMM_SOURCE)/crc16.cpp -std=c99
+crc16.o: ../crc16.c
+	gcc -x c -c ../crc16.c -std=c99
 
 libspiproto.a: spi_proto.o crc16.o
 	ar rc libspiproto.a spi_proto.o crc16.o
