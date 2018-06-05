@@ -1,6 +1,8 @@
 #include <string.h>
 #include <stdint.h>
+#ifdef DEBUG_SPI_PROTO
 #include <stdio.h>
+#endif
 
 #ifdef CPP
 extern "C" {
@@ -70,10 +72,14 @@ spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, spi_msg_callback_t 
 #ifdef DEBUG_SPI_PROTO
 			puts ("case triggered");
 #endif
-			s->num_sent_but_unconfirmed--;
-			s->num_avail++;
+			//if last sent message was real don't free space (because it was never used)
+			//able to just check if num_sent_but_unconfirmed is 0, because that means we sent a filler.
+			if (s->num_sent_but_unconfirmed) {
+				s->num_sent_but_unconfirmed--;
+				s->num_avail++;
+				s->first_unconfirmed_seq++;
+			}
 			s->num_sent_successfully++;
-			s->first_unconfirmed_seq++;
 		}
 		if (p->preack == s->we_sent_seq) {
 			//the anticipatory ack was the same as our send, so assume send was successful and increment. If it wasn't we'll find out next completed round
@@ -95,7 +101,9 @@ spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, spi_msg_callback_t 
 			} else {
 				diff = s->first_unsent_seq - s->first_unconfirmed_seq;
 			}
+#ifdef DEBUG_SPI_PROTO
 			printf("diff: %d %d -> %d\n", s->first_unsent_seq, s->first_unconfirmed_seq, diff);
+#endif
 			s->num_unsent += diff;
 			s->num_sent_but_unconfirmed -= diff;
 			//TODO assert s->num_sent_but_unconfirmed >= 0
@@ -113,6 +121,22 @@ spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, spi_msg_callback_t 
 		
 		//no queue modification necessary, just modify the variables holding the information about the queue.
 		
+#ifdef DEBUG_SPI_PROTO
+		printf("s->last_round_rcvd_seq: %d\n", s->last_round_rcvd_seq);
+		printf("p->seq: %d\n", p->seq);
+		printf("s->rcvd_seq_repeat_count: %d\n", s->rcvd_seq_repeat_count);
+#endif
+		//handle resync logic
+		if (s->last_round_rcvd_seq == p->seq) {
+			s->rcvd_seq_repeat_count++;
+			if (s->rcvd_seq_repeat_count > SPI_REPEAT_RESYNC_THRESH) {
+				s->our_next_preack = p->seq;
+				//we don't want this to continue triggering
+				s->rcvd_seq_repeat_count = 0;
+			}
+		} else {
+			s->rcvd_seq_repeat_count = 0;
+		}
 		
 		//set up last_round values for future use
 		s->last_round_rcvd_seq = p->seq;
@@ -122,7 +146,9 @@ spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, spi_msg_callback_t 
 		//done bookkeeping. don't process message because it's not the right time
 	} else {
 		//no action. XXX possibly increment send counter but seems likely we will have to go back anyway so don't
+#ifdef DEBUG_SPI_PROTO
 		puts("bad crc!");
+#endif
 	}
 }
 
@@ -293,6 +319,7 @@ spi_proto_check_invariants(struct spi_state *s)
 	if (s->our_seq > 16) return -2;
 	if (s->our_next_preack > 16) return -2;
 	
+	//TODO also check for each of these individually being over 16
 	if ((s->num_avail + s->num_unsent + s->num_sent_but_unconfirmed) != 16)
 		return -3;
 	

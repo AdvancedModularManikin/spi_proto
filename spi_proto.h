@@ -2,6 +2,8 @@
 //Queue is 16 so that all seq and ack values are valid indexes
 #define SPI_MSG_QUEUE_SIZE 16
 
+#define SPI_REPEAT_RESYNC_THRESH 10
+
 #ifdef CPP
 extern "C" {
 #endif
@@ -24,6 +26,8 @@ struct __attribute__((packed)) spi_packet {
 
 //there can't ever be more than 16 messages waiting in the queue
 
+//resync method: if the same seq is received SPI_REPEAT_RESYNC_THRESH times in a row, correctly, assume it is their correct seq and we lost synchronization due to one side being restarted. In that case update our preack to that value. 
+
 /*
 Queue with various indices
  [--------------------------]
@@ -45,6 +49,9 @@ struct spi_state {
 	
 	//for received values
 	uint8_t last_round_rcvd_seq, last_round_rcvd_preack;
+	
+	//repeat seq count
+	uint8_t rcvd_seq_repeat_count;
 
 	//bookkeeping
 	uint8_t first_unconfirmed_seq;
