@@ -79,14 +79,6 @@ void
 spi_proto_initialize(struct spi_state *s);
 int
 spi_proto_check_invariants(struct spi_state *s);
-void
-print_spi_state(struct spi_state *s);
-void
-print_spi_state_full(struct spi_state *s);
-void
-print_spi_packet(struct spi_packet *p);
-void
-print_spi_occs(struct spi_state *p);
 
 void
 spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, spi_msg_callback_t cb);

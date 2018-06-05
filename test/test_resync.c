@@ -6,6 +6,7 @@
 #include <time.h>
 
 #include "spi_proto.h"
+#include "spi_proto_util.h"
 #include "config.h"
 #include "misc/crc16.h"
 #include "test/test_util.h"
