@@ -11,12 +11,14 @@
  * Cross-compile with cross-gcc -I/path/to/cross-kernel/include
  */
 
+#define _POSIX_C_SOURCE 201800L
 #include <stdint.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
 #include <fcntl.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
@@ -201,10 +203,30 @@ int main(int argc, char *argv[])
 	printf("bits per word: %d\n", bits);
 	printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
 
+//don't want input to block
+	fcntl(0, F_SETFL, fcntl(0, F_GETFL) | O_NONBLOCK);
+	int a = getchar();
+	printf("got: %d\n", a);
 	struct spi_state s;
 	spi_proto_initialize(&s);
 	first_loop();
+	char line[80];
+	int linesize = 0;
+	struct timespec dur = {.tv_sec = 0, .tv_nsec = 1000};
 	for (;;) {
+		int a = getchar();
+		if (a != EOF) {
+			if (linesize < 80) {
+				line[linesize++] = a;
+			}
+			if (a == '\n') {
+				line[--linesize] = 0; // don't include newline
+				parse_cli(&s, line, 80);
+				linesize = 0;
+				memset(line, 0, linesize);
+			}
+		}
+		nanosleep(&dur, NULL);
 		loop(&s, fd);
 	}
 
