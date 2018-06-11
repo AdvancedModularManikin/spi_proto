@@ -4,3 +4,7 @@
 #define CHUNK_TYPE_MOTOR 4
 #define CHUNK_TYPE_ECHO 7
 #define CHUNK_TYPE_ECHO_RETURN 8
+
+#define CLASS_GPIO CHUNK_TYPE_GPIO
+#define OP_SET 1
+#define OP_GET 2

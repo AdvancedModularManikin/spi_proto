@@ -1,5 +1,3 @@
-AMM_SOURCE=../../amm-tiny/source
-
 linux_test_end: linux_test_end.c ../spi_proto.h spi_proto.o crc16.o chunk
 	gcc -o linux_test_end linux_test_end.c chunk_test.o -L. -lspiproto -std=c99
 
@@ -16,14 +14,14 @@ clean:
 	rm -f chunk_test.o
 	rm -f linux_test_end
 
-spi_proto.o: $(AMM_SOURCE)/spi_proto.cpp $(AMM_SOURCE)/spi_proto.h
-	gcc -c -x c $(AMM_SOURCE)/spi_proto.cpp -std=c99
+spi_proto.o: spi_proto_lib/spi_proto.cpp spi_proto_lib/spi_proto.h
+	gcc -c -x c spi_proto_lib/spi_proto.cpp -std=c99
 
-spi_chunks.o: $(AMM_SOURCE)/spi_chunks.cpp $(AMM_SOURCE)/spi_chunks.h
-	gcc -c -x c $(AMM_SOURCE)/spi_chunks.cpp -std=c99
+spi_chunks.o: spi_proto_lib/spi_chunks.cpp spi_proto_lib/spi_chunks.h
+	gcc -c -x c spi_proto_lib/spi_chunks.cpp -std=c99
 
-crc16.o: $(AMM_SOURCE)/crc16.c
-	gcc -c $(AMM_SOURCE)/crc16.c -std=c99
+crc16.o: crc16.c
+	gcc -c crc16.c -std=c99
 
 libspiproto.a: spi_proto.o crc16.o spi_chunks.o
 	ar rc libspiproto.a spi_proto.o crc16.o spi_chunks.o

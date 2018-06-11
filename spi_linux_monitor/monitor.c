@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "../spi_proto.h"
-#include "spi_chunk_defines.h"
+#include "../spi_proto_lib/spi_chunk_defines.h"
 
 #define SPI_TRANSFER_LEN (SPI_MSG_PAYLOAD_LEN+4)
 #define SPI_TRANSFER_SIZE SPI_TRANSFER_LEN
@@ -58,8 +58,8 @@ loop(struct spi_state *s, int spi_fd)
 	spi_proto_prep_msg(s, spi_out_buf, SPI_TRANSFER_LEN);
 	
 	//debug output
-	puts("sending");
-	print_bytes(spi_out_buf, SPI_TRANSFER_LEN);
+	//puts("sending");
+	//print_bytes(spi_out_buf, SPI_TRANSFER_LEN);
 	
 	//do transaction
 	transfer(spi_fd);
@@ -156,7 +156,12 @@ parse_cli(struct spi_state *s, char *cmd, size_t n)
 	
 	puts("buf is:");
 	for (int i = 0;i < ix; i++) printf("%02x ", buf[i]);
-	if (matched) spi_proto_send_msg(s, buf, ix);
+	if (matched) {
+		char msgbuf[32];
+		msgbuf[0] = ix+1;
+		memcpy(msgbuf+1, buf, ix);
+		spi_proto_send_msg(s, msgbuf, ix);
+	}
 	if (!matched) puts("no cases matched. syntax error?");
 	
 }
