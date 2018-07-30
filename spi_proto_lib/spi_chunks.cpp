@@ -20,33 +20,7 @@ assuming the payload of the spi proto is large but most commands are small the c
 		component message processors (type_command structs, provided with their type's array of instances)
 */
 
-#if 0
-int chunk_dispatcher_master(uint8_t *buf, size_t len)
-{
-	if (len < 2) return -1; // length zero isn't a real chunk, length 1 can't carry data
-	switch(buf[1]) {
-	case CHUNK_TYPE_VALVE:
-		if (len < 4) break; // TODO maybe increment some error counter somewhere
-		// [LEN|TYPE|ID|CMD]
-		struct valve_command valvecmd;
-		valvecmd.valve_id = buf[2];
-		valvecmd.valve_command = buf[3];
-		valve_handle_master(valvecmd, valve_arr, VALVE_NUM);
-		break;
-	case CHUNK_TYPE_GPIO:
-		if (len < CHUNK_LEN_GPIO) break; // TODO log bad chunk counter
-		// [LEN|TYPE|ID|CMD]
-		struct gpio_command gpiocmd;
-		gpiocmd.gpio_id = buf[2];
-		gpiocmd.gpio_command = buf[3];
-		gpio_handle_master(gpiocmd, carrier_gpios, GPIO_NUM);
-		break;
-	//case CHUNK_TYPE_STRING
-	default:
-		unknown_chunk_type_msg_count++; // TODO think of better name
-	}
-}
-#endif
+
 
 //returns the number of bytes used
 int
