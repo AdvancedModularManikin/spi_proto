@@ -17,10 +17,17 @@ struct host_dac {
 	struct binary_semaphore sem;
 };
 
+//flow sensors are a separate category because they use interrupts which can't reasonably be exposed remotely (and the other one uses i2c)
+struct host_flow {
+	struct binary_semaphore sem;
+	uint16_t last_read;
+};
+
 struct host_remote {
 	struct host_adc adc[ADC_NUM];
 	struct host_gpio gpio[GPIO_NUM];
 	struct host_dac dac[DAC_NUM];
+	struct host_flow flow[FLOW_NUM];
 };
 
 //TODO rather than creating host_motor just use host_gpio and host_dac
@@ -35,3 +42,6 @@ void
 dac_handle_master(struct host_dac *dac, size_t n, struct dac_response *a);	
 void
 gpio_handle_master(struct host_gpio *r, size_t n, struct gpio_response *a);
+
+int
+remote_chunk_handler(struct host_remote *r, uint8_t *buf, size_t len);

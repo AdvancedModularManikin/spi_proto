@@ -1,7 +1,8 @@
 //TODO temp for compilation
-#define GPIO_NUM 1
-#define ADC_NUM 1
+#define GPIO_NUM 15
+#define ADC_NUM 4
 #define DAC_NUM 2
+#define FLOW_NUM 2
 #define CHUNK_LEN_ADC 0
 #define CHUNK_LEN_DAC 0
 #define CHUNK_LEN_GPIO 4
@@ -73,7 +74,6 @@ remote_chunk_handler(struct host_remote *r, uint8_t *buf, size_t len)
 		daccmd.cmd = buf[3];
 		dac_handle_master(r->dac, DAC_NUM, &daccmd);
 		break;
-	//case CHUNK_TYPE_STRING
 	//TODO other chunk types
 	default:
 		unknown_chunk_type_msg_count++; // TODO think of better name
@@ -86,7 +86,7 @@ void
 adc_handle_master(struct host_adc *adc, size_t n, struct adc_response *a)
 {
 	if (a->adc_id > ADC_NUM) {out_of_range_chunks++;return;}
-	if (a->cmd == CMD_ADC_READ) {
+	if (a->cmd == OP_GET) {
 		adc[a->adc_id].last_read = a->val;
 		bisem_post(&adc[a->adc_id].sem);
 	} else {
