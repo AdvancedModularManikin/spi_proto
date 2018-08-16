@@ -92,8 +92,7 @@ remote_read_adc(unsigned int ix)
 	return remote.adc[ix].last_read;
 }
 
-//TODO this should be extended to all types and it should 
-int gpio_A_7;
+//TODO this should be extended to all types and it should
 void
 remote_gpio_set(int gpio, int on)
 {
@@ -111,7 +110,7 @@ click_task(void)
 {
 	//enable 24V rail
 	puts("enabling 24V!");
-	remote_gpio_set(gpio_A_7, 1); //GPIO_SetPinsOutput(GPIOA, 1U<<7U);
+	remote_gpio_set(15, 1); //15 is 24V rail
 	
 	
 	//module logic:

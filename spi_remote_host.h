@@ -3,7 +3,7 @@
 //TODO temp for compilation
 #define SOLENOID_NUM 8
 #define FLOW_NUM 1
-#define GPIO_NUM 15
+#define GPIO_NUM 16
 #define ADC_NUM 4
 #define DAC_NUM 2
 
