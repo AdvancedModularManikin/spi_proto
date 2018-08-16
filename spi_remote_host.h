@@ -1,3 +1,12 @@
+//here for now, if we had multiple boards this would need to be separate
+//TODO centralize in a config file
+//TODO temp for compilation
+#define SOLENOID_NUM 8
+#define FLOW_NUM 1
+#define GPIO_NUM 15
+#define ADC_NUM 4
+#define DAC_NUM 2
+
 struct host_adc {
 	struct binary_semaphore sem;
 	uint16_t last_read; // TODO some potential issues with stale data

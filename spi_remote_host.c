@@ -1,11 +1,4 @@
 //TODO temp for compilation
-#define GPIO_NUM 15
-#define ADC_NUM 4
-#define DAC_NUM 2
-#define FLOW_NUM 2
-
-
-//TODO temp for compilation
 extern int unknown_chunk_type_msg_count;
 extern int out_of_range_chunks;
 

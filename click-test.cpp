@@ -1,12 +1,4 @@
 //causes solenoids to click in strobing sequence. Remote API test
-
-//TODO centralize in a config file
-#define ADC_NUM 1
-#define GPIO_NUM 2
-#define DAC_NUM 2
-#define SOLENOID_NUM 8
-#define FLOW_NUM 1
-
 #include <stdint.h>
 #include <stddef.h>
 
