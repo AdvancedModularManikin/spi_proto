@@ -3,9 +3,6 @@
 #define ADC_NUM 4
 #define DAC_NUM 2
 #define FLOW_NUM 2
-#define CHUNK_LEN_ADC 0
-#define CHUNK_LEN_DAC 0
-#define CHUNK_LEN_GPIO 4
 
 
 //TODO temp for compilation
@@ -42,6 +39,8 @@ host_remote_init(struct host_remote *r)
 		bisem_init(&r->gpio[i].sem);
 	}
 }
+
+//TODO add flow sensor stuff
 
 int
 remote_chunk_handler(struct host_remote *r, uint8_t *buf, size_t len)
@@ -92,6 +91,7 @@ adc_handle_master(struct host_adc *adc, size_t n, struct adc_response *a)
 		bisem_post(&adc[a->adc_id].sem);
 	} else {
 		//TODO other ops
+		puts("TODO other case in adc_handle_master")
 	}
 }
 
@@ -101,9 +101,14 @@ gpio_handle_master(struct host_gpio *gpio, size_t n, struct gpio_response *c)
 	if (c->gpio_id > GPIO_NUM) {out_of_range_chunks++;return;}
 	if (c->cmd == OP_GET) {
 		gpio[c->gpio_id].last_read = c->val;
+		printf("posting gpio sem %d\n", c->gpio_id);
+		bisem_post(&gpio[c->gpio_id].sem);
+	} else if (c->cmd == OP_GET) {
+		printf("posting gpio sem %d\n", c->gpio_id);
 		bisem_post(&gpio[c->gpio_id].sem);
 	} else {
 		//TODO other ops
+		puts("TODO other case in gpio_handle_master")
 	}
 }
 
@@ -115,5 +120,6 @@ dac_handle_master(struct host_dac *dac, size_t n, struct dac_response *c)
 		bisem_post(&dac[c->dac_id].sem);
 	} else {
 		//TODO other ops
+		puts("TODO other case in dac_handle_master")
 	}
 }

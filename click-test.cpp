@@ -72,6 +72,7 @@ int spi_transfer(int fd, const unsigned char *tx_buf, unsigned char *rx_buf, __u
 }
 
 int main(int argc, char *argv[]) {
+	host_remote_init(&remote);
 	std::thread remote_thread(remote_task);
 	std::thread click_thread(click_task);
 	
@@ -107,7 +108,9 @@ remote_gpio_set(int gpio, int on)
 	//TODO double check message format here
 	uint8_t buf[5] = {5, CHUNK_TYPE_GPIO, gpio, OP_SET, on};
 	send_chunk(buf, 5);
+	printf("waiting on gpio sem %d\n", gpio);
 	bisem_wait(&remote.gpio[gpio].sem);
+	printf("done waiting on gpio sem %d\n", gpio);
 	return;
 }
 

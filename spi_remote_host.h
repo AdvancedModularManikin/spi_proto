@@ -32,6 +32,9 @@ struct host_remote {
 //IDEA features useful in a repl: more detailed error reporting. Associating a name (B19, DAC0, ADC7) with each index in a type. Reporting how many of each peripheral are available.
 
 void
+host_remote_init(struct host_remote *r);
+
+void
 adc_handle_master(struct host_adc *adc, size_t n, struct adc_response *a);
 void
 dac_handle_master(struct host_dac *dac, size_t n, struct dac_response *a);	
