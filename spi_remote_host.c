@@ -17,6 +17,10 @@ extern int out_of_range_chunks;
 #include "spi_remote_host.h"
 #include "spi_proto_lib/spi_chunk_defines.h"
 
+//TODO temp
+#define CHUNK_LEN_DAC CHUNK_LEN_DAC_S2M
+#define CHUNK_LEN_ADC CHUNK_LEN_ADC_S2M
+#define CHUNK_LEN_GPIO CHUNK_LEN_GPIO_S2M
 
 //TODO temp for compilation
 uint16_t bad_chunk_counter;
@@ -91,7 +95,7 @@ adc_handle_master(struct host_adc *adc, size_t n, struct adc_response *a)
 		bisem_post(&adc[a->adc_id].sem);
 	} else {
 		//TODO other ops
-		puts("TODO other case in adc_handle_master")
+		puts("TODO other case in adc_handle_master");
 	}
 }
 
@@ -103,12 +107,12 @@ gpio_handle_master(struct host_gpio *gpio, size_t n, struct gpio_response *c)
 		gpio[c->gpio_id].last_read = c->val;
 		printf("posting gpio sem %d\n", c->gpio_id);
 		bisem_post(&gpio[c->gpio_id].sem);
-	} else if (c->cmd == OP_GET) {
+	} else if (c->cmd == OP_SET) {
 		printf("posting gpio sem %d\n", c->gpio_id);
 		bisem_post(&gpio[c->gpio_id].sem);
 	} else {
 		//TODO other ops
-		puts("TODO other case in gpio_handle_master")
+		puts("TODO other case in gpio_handle_master");
 	}
 }
 
@@ -120,6 +124,6 @@ dac_handle_master(struct host_dac *dac, size_t n, struct dac_response *c)
 		bisem_post(&dac[c->dac_id].sem);
 	} else {
 		//TODO other ops
-		puts("TODO other case in dac_handle_master")
+		puts("TODO other case in dac_handle_master");
 	}
 }
