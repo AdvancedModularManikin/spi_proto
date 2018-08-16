@@ -17,6 +17,7 @@ extern int out_of_range_chunks;
 #include "binary_semaphore.h"
 #include "spi_proto.h"
 #include "spi_remote.h"
+#include "spi_remote_host.h"
 #include "spi_proto_lib/spi_chunk_defines.h"
 
 

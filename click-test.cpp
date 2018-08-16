@@ -20,6 +20,7 @@ extern "C" {
 #include "spi_proto_lib/spi_chunk_defines.h"
 #include "binary_semaphore.h"
 #include "spi_remote.h"
+#include "spi_remote_host.h"
 }
 #include "master_spi_proto.h"
 
