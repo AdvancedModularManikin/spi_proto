@@ -6,11 +6,13 @@
 
 #include "spi_proto.h"
 #include "spi_chunks.h"
-#include "spi_chunks_slave.h"
+//#include "spi_chunks_slave.h"
 
 #ifdef CPP
 extern "C" {
 #endif
+
+int out_of_range_chunks;
 
 //TODO check that 0 and 1 length packets are correctly handled
 /*

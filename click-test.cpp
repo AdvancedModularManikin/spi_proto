@@ -5,13 +5,21 @@
 #define GPIO_NUM 2
 #define DAC_NUM 2
 #define SOLENOID_NUM 8
+#define FLOW_NUM 1
 
-#include "spi_proto/spi_proto.h"
+#include <stdint.h>
+#include <stddef.h>
+
+#include <thread>
+
+#include <string.h>
+
 extern "C" {
-#include "spi_proto/spi_proto_lib/spi_chunks.h"
-#include "spi_proto/spi_proto_lib/spi_chunk_defines.h"
-#include "spi_proto/binary_semaphore.h"
-#include "spi_proto/spi_remote.h"
+#include "spi_proto.h"
+#include "spi_proto_lib/spi_chunks.h"
+#include "spi_proto_lib/spi_chunk_defines.h"
+#include "binary_semaphore.h"
+#include "spi_remote.h"
 }
 #include "master_spi_proto.h"
 
@@ -27,7 +35,8 @@ using namespace spi_proto;
 //TODO move these to config - variables that define peripherals on the tiny or are needed for remote
 #define NUM_WAIT_CHUNKS 10
 struct waiting_chunk wait_chunks[NUM_WAIT_CHUNKS] = {0};
-void send_chunk(void*, int);
+//void send_chunk(void*, int);
+int send_chunk(uint8_t*, size_t);
 
 static const char *device = "/dev/spidev0.0";
 static uint8_t mode;
@@ -60,9 +69,6 @@ int spi_transfer(int fd, const unsigned char *tx_buf, unsigned char *rx_buf, __u
 		perror("can't send spi message");
 	return ret;
 }
-
-struct spi_state spi_state;
-
 
 int main(int argc, char *argv[]) {
 	std::thread remote_thread(remote_task);
@@ -105,9 +111,10 @@ remote_gpio_set(int gpio, int on)
 }
 
 void
-bleed_task(void)
+click_task(void)
 {
 	//enable 24V rail
+	puts("enabling 24V!");
 	remote_gpio_set(gpio_A_7, 1); //GPIO_SetPinsOutput(GPIOA, 1U<<7U);
 	
 	
@@ -115,18 +122,22 @@ bleed_task(void)
 	//wait for start message
 	//begin pressurizing
 	//when pressurized, stop pressurizing and send the "I'm sealed" message to SoM code
+	int wait = 200;
 	uint8_t solenoid_0 = 8;
+	puts("starting clicking!");
 	for (;;) {
 		for (int i = 0; i < SOLENOID_NUM; i++) {
 			remote_gpio_set(solenoid_0 + i, 1);
 			delay_ms(wait);
 		}
 		delay_ms(wait);
+		puts("clicked");
 		for (int i = 0; i < SOLENOID_NUM; i++) {
 			remote_gpio_set(solenoid_0 + i, 0);
 			delay_ms(wait);
 		}
 		delay_ms(wait);
+		puts("unclicked");
 	}
 }
 
@@ -139,12 +150,13 @@ click_chunk_handler(uint8_t *b, size_t len)
 void
 remote_handler(struct host_remote *r, struct spi_packet *p)
 {
-	spi_msg_chunks(p->msg, SPI_PAYLOAD_LEN, ivc_chunk_handler);
+	spi_msg_chunks(p->msg, SPI_PAYLOAD_LEN, click_chunk_handler);
 }
 
 void
 click_remote(struct spi_packet *p)
 {
+	puts("click remote!");
 	remote_handler(&remote, p);
 }
 
@@ -160,6 +172,7 @@ send_chunk(uint8_t *buf, size_t len)
 			return 0;
 		}
 	}
+	puts("SENDING A CHUNK FAILED!");
 	return -1;
 }
 
@@ -174,9 +187,11 @@ master_send_message(struct master_spi_proto &p, unsigned char *buf, unsigned int
 int
 prepare_master_chunks(void)
 {
-	uint8_t buf[SPI_MSG_PAYLOAD_LEN];
-	int ret1 = chunk_packer(wait_chunks, NUM_WAIT_CHUNKS, buf, SPI_MSG_PAYLOAD_LEN);
-	int ret2 = master_send_message(spi_proto::p, buf, SPI_MSG_PAYLOAD_LEN);
+	uint8_t buf[SPI_MSG_PAYLOAD_LEN] = {0};
+	int ret2, ret1 = chunk_packer(wait_chunks, NUM_WAIT_CHUNKS, buf, SPI_MSG_PAYLOAD_LEN);
+	if (!ret1) puts("chunk_packer didn't pack anything!");
+	if (ret1) // don't send empty packets as though they're real
+		ret2 = master_send_message(spi_proto::p, buf, SPI_MSG_PAYLOAD_LEN);
 	return ret1|ret2;
 }
 
@@ -186,23 +201,35 @@ remote_task(void)
 	int spi_fd = open(device, O_RDWR);
 	unsigned char recvbuf[TRANSFER_SIZE];
 	unsigned char sendbuf[TRANSFER_SIZE] = {};
-	struct spi_state *s = &spi_state;
-	spi_proto_initialize(s);
+	//struct spi_state *s = &spi_state;
+	spi_proto_master_initialize(&spi_proto::p);
 	
 	int count = 0;
 	bool closed = 0;
 	while (!closed) {
 		prepare_master_chunks();
-		int ret = spi_proto_prep_msg(s, sendbuf, TRANSFER_SIZE);
-		
+		int ret = spi_proto_prep_msg(&spi_proto::p.proto, sendbuf, TRANSFER_SIZE);
+		printf("ret was %d\n", ret);	
+		printf("OUT\t");
+		for (int i = 0; i < 16; i++) printf("%02x ", sendbuf[i]);
+		puts("");
 		//do SPI communication
 		int spi_tr_res = spi_transfer(spi_fd, sendbuf, recvbuf, TRANSFER_SIZE);
-		
+		printf("IN\t");
+		for (int i = 0; i < 16; i++) printf("%02x ", recvbuf[i]);
+		puts("");
 		struct spi_packet pack;
 		memcpy(&pack, recvbuf, TRANSFER_SIZE);
-		spi_proto_rcv_msg(s, &pack, ivc_remote);
+		spi_proto_rcv_msg(&spi_proto::p.proto, &pack, click_remote);
 		
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		++count;
 	}
+}
+namespace spi_proto {
+void
+spi_proto_master_initialize(struct master_spi_proto *s)
+{
+	spi_proto_initialize(&s->proto);
+}
 }

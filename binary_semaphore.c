@@ -1,5 +1,8 @@
 #include <pthread.h>
-
+#include "binary_semaphore.h"
+#ifdef CPP
+extern "C" {
+#endif
 void bisem_post(struct binary_semaphore *p)
 {
 	pthread_mutex_lock(&p->mutex);
@@ -34,3 +37,6 @@ bisem_destroy(struct binary_semaphore *p)
 	pthread_cond_destroy(&p->cvar);
 	pthread_mutex_destroy(&p->mutex);
 }
+#ifdef CPP
+} // extern
+#endif
