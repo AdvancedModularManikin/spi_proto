@@ -119,7 +119,7 @@ click_task(void)
 	//begin pressurizing
 	//when pressurized, stop pressurizing and send the "I'm sealed" message to SoM code
 	int wait = 200;
-	uint8_t solenoid_0 = 8;
+	uint8_t solenoid_0 = 7;
 	puts("starting clicking!");
 	for (;;) {
 		for (int i = 0; i < SOLENOID_NUM; i++) {
