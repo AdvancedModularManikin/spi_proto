@@ -1,5 +1,7 @@
 //formats for sending and receiving messages. Perhaps should not bother marshalling into structs?
 
+//TODO are these broken because they don't include length+type?
+
 struct adc_cmd {uint8_t id; uint8_t cmd;};
 #define CHUNK_LEN_ADC_M2S sizeof(struct adc_cmd)
 struct dac_cmd {uint8_t id; uint8_t cmd; uint16_t val;};
@@ -12,7 +14,8 @@ struct gpio_cmd {uint8_t id; uint8_t cmd; uint8_t val;};
 struct flow_cmd {uint8_t flow_id; uint8_t cmd; uint16_t val;};
 #define CHUNK_LEN_FLOW_M2S sizeof(struct flow_cmd)
 
-struct adc_response {uint8_t adc_id; uint8_t cmd; uint8_t val;};
+//TODO 32 or 16 bits for the adc?
+struct adc_response {uint8_t adc_id; uint8_t cmd; uint32_t val;};
 #define CHUNK_LEN_ADC_S2M sizeof(struct dac_cmd)
 struct dac_response {uint8_t dac_id; uint8_t cmd;};
 #define CHUNK_LEN_DAC_S2M sizeof(struct dac_cmd)
