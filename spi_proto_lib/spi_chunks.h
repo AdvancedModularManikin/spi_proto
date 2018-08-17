@@ -5,7 +5,7 @@ struct waiting_chunk {
 	char ready_to_pack; // and therefore not empty. char because bool isn't in C
 };
 
-unsigned int unknown_chunk_type_msg_count;
+extern unsigned int unknown_chunk_type_msg_count;
 int
 chunk_dispatcher(uint8_t *buf, size_t len);
 int

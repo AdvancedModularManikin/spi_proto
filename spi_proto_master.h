@@ -1,4 +1,4 @@
-struct host_remote remote;
+extern struct host_remote remote;
 
 void
 remote_task(void);
@@ -7,7 +7,7 @@ struct master_spi_proto {
 	struct spi_state proto;
 };
 
-struct master_spi_proto p;
+extern struct master_spi_proto p;
 void
 spi_proto_master_initialize(struct master_spi_proto *s);
 int
@@ -21,3 +21,6 @@ remote_gpio_set(int gpio, int on);
 
 int
 send_chunk(uint8_t *buf, size_t len);
+void remote_task(void);
+void click_remote(struct spi_packet *p);
+int prepare_master_chunks(void);

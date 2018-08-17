@@ -1,5 +1,5 @@
 //TODO temp for compilation
-extern int unknown_chunk_type_msg_count;
+int unknown_chunk_type_msg_count;
 extern int out_of_range_chunks;
 
 #include <stdint.h>

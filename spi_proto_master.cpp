@@ -1,4 +1,13 @@
+//#include <pthread.h>
+#include <thread>
+#include <stdint.h>
+#include <stdio.h>
+#include "string.h"
 extern "C" {
+#include "spi_proto.h"
+#include "spi_proto_lib/spi_chunks.h"
+#include "spi_proto_lib/spi_chunk_defines.h"
+#include "binary_semaphore.h"
 #include "spi_remote.h"
 #include "spi_remote_host.h"
 }
@@ -11,6 +20,9 @@ extern "C" {
 #include <fcntl.h>		/* For O_RDWR */
 
 struct host_remote remote;
+namespace spi_proto {
+	struct master_spi_proto p;
+}
 
 //TODO centralize
 #define TRANSFER_SIZE 36
@@ -37,11 +49,8 @@ int spi_transfer(int fd, const unsigned char *tx_buf, unsigned char *rx_buf, __u
 	return ret;
 }
 
-//TODO move these to config - variables that define peripherals on the tiny or are needed for remote
 #define NUM_WAIT_CHUNKS 10
 struct waiting_chunk wait_chunks[NUM_WAIT_CHUNKS] = {0};
-//void send_chunk(void*, int);
-int send_chunk(uint8_t*, size_t);
 
 void
 remote_task(void)
