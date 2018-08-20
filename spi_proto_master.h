@@ -15,9 +15,11 @@ master_send_message(struct master_spi_proto &p, unsigned char *buf, unsigned int
 }
 
 uint32_t
-remote_read_adc(unsigned int ix);
+remote_get_adc(unsigned int ix);
+void remote_set_dac(unsigned int ix, uint16_t val);
+
 void
-remote_gpio_set(int gpio, int on);
+remote_set_gpio(int gpio, int on);
 
 int
 send_chunk(uint8_t *buf, size_t len);

@@ -61,6 +61,7 @@ remote_chunk_handler(struct host_remote *r, uint8_t *buf, size_t len)
 		struct adc_response adccmd;
 		adccmd.adc_id = buf[2];
 		adccmd.cmd = buf[3];
+		adccmd.val = buf[4] + (buf[5]<<8) + (buf[6]<<16) + (buf[7]<<24);
 		adc_handle_master(r->adc, ADC_NUM, &adccmd);
 		break;
 	case CHUNK_TYPE_DAC:

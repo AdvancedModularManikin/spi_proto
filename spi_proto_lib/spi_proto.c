@@ -7,13 +7,13 @@
 #ifdef CPP
 extern "C" {
 #endif
-#include "config.h"
-#include "misc/crc16.h"
+#include "../config.h"
+#include "../misc/crc16.h"
 #ifdef CPP
 }
 #endif
 
-#include "spi_proto.h"
+#include "../spi_proto.h"
 
 //TODO this was made CPP to fix a linker error, instead determine what was causing the cross-language linking to fail and fix that so this can be pure C
 

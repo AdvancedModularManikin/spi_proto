@@ -5,12 +5,12 @@
 #include "string.h"
 extern "C" {
 #include "spi_proto.h"
-#include "spi_proto_lib/spi_chunks.h"
 #include "spi_proto_lib/spi_chunk_defines.h"
 #include "binary_semaphore.h"
 #include "spi_remote.h"
 #include "spi_remote_host.h"
 }
+#include "spi_proto_lib/spi_chunks.h"
 #include "spi_proto_master.h"
 
 #include <sys/ioctl.h>
@@ -96,7 +96,7 @@ master_send_message(struct master_spi_proto &p, unsigned char *buf, unsigned int
 }
 }
 uint32_t
-remote_read_adc(unsigned int ix)
+remote_get_adc(unsigned int ix)
 {
 	uint8_t buf[4] = {4, CHUNK_TYPE_ADC, ix, OP_GET};
 	send_chunk(buf, 4);
@@ -106,7 +106,7 @@ remote_read_adc(unsigned int ix)
 
 //TODO this should be extended to all types and it should
 void
-remote_gpio_set(int gpio, int on)
+remote_set_gpio(int gpio, int on)
 {
 	//TODO double check message format here
 	uint8_t buf[5] = {5, CHUNK_TYPE_GPIO, gpio, OP_SET, on};
@@ -114,6 +114,17 @@ remote_gpio_set(int gpio, int on)
 	printf("waiting on gpio sem %d\n", gpio);
 	bisem_wait(&remote.gpio[gpio].sem);
 	printf("done waiting on gpio sem %d\n", gpio);
+	return;
+}
+void
+remote_set_dac(unsigned int dac, uint16_t val)
+{
+	//TODO double check message format here
+	uint8_t buf[6] = {6, CHUNK_TYPE_DAC, dac, OP_SET, val&0xff, val>>8};
+	send_chunk(buf, 6);
+	printf("waiting on dac sem %d\n", dac);
+	bisem_wait(&remote.dac[dac].sem);
+	printf("done waiting on dac sem %d\n", dac);
 	return;
 }
 
