@@ -79,7 +79,7 @@ remote_task(void)
 		memcpy(&pack, recvbuf, TRANSFER_SIZE);
 		spi_proto_rcv_msg(&spi_proto::p.proto, &pack, click_remote);
 		
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		++count;
 	}
 }
