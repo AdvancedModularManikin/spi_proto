@@ -66,15 +66,19 @@ remote_task(void)
 	while (!closed) {
 		prepare_master_chunks();
 		int ret = spi_proto_prep_msg(&spi_proto::p.proto, sendbuf, TRANSFER_SIZE);
+		/*
 		printf("ret was %d\n", ret);	
 		printf("OUT\t");
 		for (int i = 0; i < 16; i++) printf("%02x ", sendbuf[i]);
 		puts("");
+		*/
 		//do SPI communication
 		int spi_tr_res = spi_transfer(spi_fd, sendbuf, recvbuf, TRANSFER_SIZE);
+		/*
 		printf("IN\t");
 		for (int i = 0; i < 16; i++) printf("%02x ", recvbuf[i]);
 		puts("");
+		*/
 		struct spi_packet pack;
 		memcpy(&pack, recvbuf, TRANSFER_SIZE);
 		spi_proto_rcv_msg(&spi_proto::p.proto, &pack, click_remote);
@@ -111,9 +115,9 @@ remote_set_gpio(int gpio, int on)
 	//TODO double check message format here
 	uint8_t buf[5] = {5, CHUNK_TYPE_GPIO, gpio, OP_SET, on};
 	send_chunk(buf, 5);
-	printf("waiting on gpio sem %d\n", gpio);
+	//printf("waiting on gpio sem %d\n", gpio);
 	bisem_wait(&remote.gpio[gpio].sem);
-	printf("done waiting on gpio sem %d\n", gpio);
+	//printf("done waiting on gpio sem %d\n", gpio);
 	return;
 }
 void
@@ -122,9 +126,9 @@ remote_set_dac(unsigned int dac, uint16_t val)
 	//TODO double check message format here
 	uint8_t buf[6] = {6, CHUNK_TYPE_DAC, dac, OP_SET, val&0xff, val>>8};
 	send_chunk(buf, 6);
-	printf("waiting on dac sem %d\n", dac);
+	//printf("waiting on dac sem %d\n", dac);
 	bisem_wait(&remote.dac[dac].sem);
-	printf("done waiting on dac sem %d\n", dac);
+	//printf("done waiting on dac sem %d\n", dac);
 	return;
 }
 
@@ -149,7 +153,7 @@ prepare_master_chunks(void)
 {
 	uint8_t buf[SPI_MSG_PAYLOAD_LEN] = {0};
 	int ret2, ret1 = chunk_packer(wait_chunks, NUM_WAIT_CHUNKS, buf, SPI_MSG_PAYLOAD_LEN);
-	if (!ret1) puts("chunk_packer didn't pack anything!");
+	//if (!ret1) puts("chunk_packer didn't pack anything!");
 	if (ret1) // don't send empty packets as though they're real
 		ret2 = master_send_message(spi_proto::p, buf, SPI_MSG_PAYLOAD_LEN);
 	return ret1|ret2;
@@ -169,6 +173,5 @@ remote_handler(struct host_remote *r, struct spi_packet *p)
 void
 click_remote(struct spi_packet *p)
 {
-	puts("click remote!");
 	remote_handler(&remote, p);
 }
