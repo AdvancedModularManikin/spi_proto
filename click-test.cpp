@@ -1,10 +1,6 @@
-//g++ click-test.cpp spi_proto_master.cpp -std=c++14 -pthread -x c binary_semaphore.c -x c spi_proto_lib/spi_proto.c spi_proto_lib/spi_chunks.cpp -I. -Ispi_proto_lib/ -x c crc16.c -x c spi_remote_host.c -o click -g
+//g++ click-test.cpp spi_proto_master.cpp spi_proto_lib/spi_chunks.cpp -std=c++14 -pthread -x c binary_semaphore.c -x c spi_proto_lib/spi_proto.c -I. -Ispi_proto_lib/ -x c crc16.c -x c spi_remote_host.c -o click -g
 //causes solenoids to click in strobing sequence. Remote API test
-#include <stdint.h>
-
 #include <thread>
-
-#include <string.h>
 
 extern "C" {
 #include "spi_proto.h"
@@ -44,7 +40,7 @@ click_task(void)
 {
 	//enable 24V rail
 	puts("enabling 24V!");
-	remote_gpio_set(15, 1); //15 is 24V rail
+	remote_set_gpio(15, 1); //15 is 24V rail
 	
 	
 	//module logic:
@@ -56,13 +52,13 @@ click_task(void)
 	puts("starting clicking!");
 	for (;;) {
 		for (int i = 0; i < SOLENOID_NUM; i++) {
-			remote_gpio_set(solenoid_0 + i, 1);
+			remote_set_gpio(solenoid_0 + i, 1);
 			delay_ms(wait);
 		}
 		delay_ms(wait);
 		puts("clicked");
 		for (int i = 0; i < SOLENOID_NUM; i++) {
-			remote_gpio_set(solenoid_0 + i, 0);
+			remote_set_gpio(solenoid_0 + i, 0);
 			delay_ms(wait);
 		}
 		delay_ms(wait);

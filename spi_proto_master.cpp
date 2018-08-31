@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "string.h"
+
 extern "C" {
 #include "spi_proto.h"
 #include "spi_proto_lib/spi_chunk_defines.h"
@@ -17,7 +18,7 @@ extern "C" {
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
 
-#include <fcntl.h>		/* For O_RDWR */
+#include <fcntl.h> /* For O_RDWR */
 
 struct host_remote remote;
 namespace spi_proto {
@@ -58,7 +59,6 @@ remote_task(void)
 	int spi_fd = open(device, O_RDWR);
 	unsigned char recvbuf[TRANSFER_SIZE];
 	unsigned char sendbuf[TRANSFER_SIZE] = {};
-	//struct spi_state *s = &spi_state;
 	spi_proto_master_initialize(&spi_proto::p);
 	
 	int count = 0;
@@ -99,6 +99,7 @@ master_send_message(struct master_spi_proto &p, unsigned char *buf, unsigned int
 	return spi_proto_send_msg(&p.proto, buf, len);
 }
 }
+
 uint32_t
 remote_get_adc(unsigned int ix)
 {
@@ -107,28 +108,30 @@ remote_get_adc(unsigned int ix)
 	bisem_wait(&remote.adc[ix].sem);
 	return remote.adc[ix].last_read;
 }
-
-//TODO this should be extended to all types and it should
 void
 remote_set_gpio(int gpio, int on)
 {
-	//TODO double check message format here
 	uint8_t buf[5] = {5, CHUNK_TYPE_GPIO, gpio, OP_SET, on};
 	send_chunk(buf, 5);
-	//printf("waiting on gpio sem %d\n", gpio);
 	bisem_wait(&remote.gpio[gpio].sem);
-	//printf("done waiting on gpio sem %d\n", gpio);
 	return;
 }
+/* TODO needs ability to set meta information and change the direction of a gpio
+void
+remote_get_gpio(int gpio, int on)
+{
+	uint8_t buf[4] = {4, CHUNK_TYPE_GPIO, gpio, OP_GET};
+	send_chunk(buf, 4);
+	bisem_wait(&remote.gpio[gpio].sem);
+	return remote.gpio[gpio].last_read;
+}
+*/
 void
 remote_set_dac(unsigned int dac, uint16_t val)
 {
-	//TODO double check message format here
 	uint8_t buf[6] = {6, CHUNK_TYPE_DAC, dac, OP_SET, val&0xff, val>>8};
 	send_chunk(buf, 6);
-	//printf("waiting on dac sem %d\n", dac);
 	bisem_wait(&remote.dac[dac].sem);
-	//printf("done waiting on dac sem %d\n", dac);
 	return;
 }
 
@@ -136,6 +139,7 @@ int
 send_chunk(uint8_t *buf, size_t len)
 {
 	//find an open waiting_chunk in waiting_chunks and copy it in
+	//TODO use wait_chunks more like a ring buffer for fairness
 	for (int i = 0; i < NUM_WAIT_CHUNKS; i++) {
 		if (!wait_chunks[i].ready_to_pack) {
 			memcpy(wait_chunks[i].buf, buf, len);
@@ -153,11 +157,12 @@ prepare_master_chunks(void)
 {
 	uint8_t buf[SPI_MSG_PAYLOAD_LEN] = {0};
 	int ret2, ret1 = chunk_packer(wait_chunks, NUM_WAIT_CHUNKS, buf, SPI_MSG_PAYLOAD_LEN);
-	//if (!ret1) puts("chunk_packer didn't pack anything!");
 	if (ret1) // don't send empty packets as though they're real
 		ret2 = master_send_message(spi_proto::p, buf, SPI_MSG_PAYLOAD_LEN);
 	return ret1|ret2;
 }
+
+//These could possibly be eliminated by a redesign.
 int
 click_chunk_handler(uint8_t *b, size_t len)
 {
