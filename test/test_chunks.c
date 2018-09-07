@@ -9,8 +9,8 @@
 #include "spi_proto.h"
 #include "spi_proto_util.h"
 #include "config.h"
-#include "misc/crc16.h"
-#include "../amm-tiny/source/spi_chunks.h"
+#include "crc16.h"
+#include "spi_chunks.h"
 
 #include "test/test_util.h"
 

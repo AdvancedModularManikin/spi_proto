@@ -3,34 +3,34 @@ CFLAGS=-Wall -Wextra -Wno-missing-braces -Wno-unused-variable -Wno-unused-parame
 all : spi_test msg_test chunk_test resync_test spi_proto.o spi_chunks.o
 
 spi_test: test/spi_proto_tests.c libspiproto.a test/test_util.o spi_proto_util.o
-	gcc $(CFLAGS) -o spi_test test/spi_proto_tests.c test/test_util.o crc16.o spi_proto_util.o -L. -lspiproto -I.
+	gcc $(CFLAGS) -o spi_test test/spi_proto_tests.c test/test_util.o crc16.o spi_proto_util.o -L. -lspiproto -I. -Isrc
 
 msg_test: test/test_longer_random_messages.c libspiproto.a test/test_util.o spi_proto_util.o
-	gcc $(CFLAGS) -o msg_test test/test_longer_random_messages.c test/test_util.o spi_proto_util.o -L. -lspiproto -I.
+	gcc $(CFLAGS) -o msg_test test/test_longer_random_messages.c test/test_util.o spi_proto_util.o -L. -lspiproto -I. -Isrc
 
 chunk_test: test/test_chunks.c libspiproto.a spi_chunks.o test/test_util.o spi_proto_util.o
-	gcc $(CFLAGS) -o chunk_test test/test_chunks.c spi_chunks.o test/test_util.o spi_proto_util.o -L. -lspiproto -I.
+	gcc $(CFLAGS) -o chunk_test test/test_chunks.c spi_chunks.o test/test_util.o spi_proto_util.o -L. -lspiproto -I. -Isrc
 
 resync_test: test/test_resync.c libspiproto.a spi_chunks.o test/test_util.o spi_proto_util.o
-	gcc $(CFLAGS) -o resync_test test/test_resync.c spi_chunks.o test/test_util.o spi_proto_util.o -L. -lspiproto -I.
+	gcc $(CFLAGS) -o resync_test test/test_resync.c spi_chunks.o test/test_util.o spi_proto_util.o -L. -lspiproto -I. -Isrc
 
-spi_proto.o: spi_proto_lib/spi_proto.c spi_proto.h
-	gcc $(CFLAGS) -c spi_proto_lib/spi_proto.c -std=c99 -I.
+spi_proto.o: src/spi_proto.c src/spi_proto.h
+	gcc $(CFLAGS) -c src/spi_proto.c -std=c99 -Isrc
 
-spi_proto_util.o: spi_proto_lib/spi_proto_util.c spi_proto_util.h
-	gcc $(CFLAGS) -c spi_proto_lib/spi_proto_util.c -std=c99 -I.
+spi_proto_util.o: src/spi_proto_util.c src/spi_proto_util.h
+	gcc $(CFLAGS) -c src/spi_proto_util.c -std=c99 -Isrc
 
-spi_chunks.o: spi_proto_lib/spi_chunks.cpp spi_proto_lib/spi_chunks.h
-	gcc $(CFLAGS) -c -x c spi_proto_lib/spi_chunks.cpp -std=c99
+spi_chunks.o: src/spi_chunks.cpp src/spi_chunks.h
+	gcc $(CFLAGS) -c -x c src/spi_chunks.cpp -std=c99
 
-crc16.o: crc16.c
-	gcc $(CFLAGS) -c crc16.c
+crc16.o: src/crc16.c
+	gcc $(CFLAGS) -c src/crc16.c
 
 test/test_util.o: test/test_util.c
 	gcc $(CFLAGS) -c test/test_util.c -o test/test_util.o
 
 clean:
-	rm -f spi_test msg_test chunk_test resync_test spi_proto.o spi_chunks.o crc16.o test/test_util.o libspiproto.a
+	rm -f spi_test msg_test chunk_test resync_test spi_proto.o spi_chunks.o crc16.o test/test_util.o libspiproto.a binary_semaphore.o spi_proto_util.o spi_remote.o
 
 libspiproto.a: spi_proto.o crc16.o
 	ar rc libspiproto.a spi_proto.o crc16.o

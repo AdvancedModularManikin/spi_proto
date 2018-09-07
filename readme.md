@@ -81,5 +81,5 @@ This is used by all functions to enqueue messages to be packed to be sent over t
 
 ## example
 
-`click-test.cpp` is a simple example.
+`test/click-test.cpp` is a simple example.
 
