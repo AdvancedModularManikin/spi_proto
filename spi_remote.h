@@ -16,12 +16,12 @@ struct flow_cmd {uint8_t flow_id; uint8_t cmd; uint16_t val;};
 
 //TODO 32 or 16 bits for the adc?
 struct adc_response {uint8_t adc_id; uint8_t cmd; uint32_t val;};
-#define CHUNK_LEN_ADC_S2M sizeof(struct dac_cmd)
+#define CHUNK_LEN_ADC_S2M sizeof(struct adc_response)
 struct dac_response {uint8_t dac_id; uint8_t cmd;};
-#define CHUNK_LEN_DAC_S2M sizeof(struct dac_cmd)
+#define CHUNK_LEN_DAC_S2M sizeof(struct dac_response)
 struct gpio_response {uint8_t gpio_id; uint8_t cmd; uint8_t val;};
-#define CHUNK_LEN_GPIO_S2M sizeof(struct dac_cmd)
+#define CHUNK_LEN_GPIO_S2M sizeof(struct gpio_response)
 struct flow_response {uint8_t flow_id; uint8_t cmd; uint16_t val;};
-#define CHUNK_LEN_FLOW_S2M sizeof(struct dac_cmd)
+#define CHUNK_LEN_FLOW_S2M sizeof(struct flow_response)
 
 //IDEA these don't necessarily have to be completely sent. If cmd is SET, this is a response so val is 0 so for e.g. a fpio the response packet can be {4, TYPE_GPIO, ID, SET} and the final portion can be elided. This requires the parsers being very careful.
