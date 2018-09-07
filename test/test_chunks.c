@@ -70,7 +70,6 @@ num_free_chunks(struct waiting_chunk *c, size_t n)
 }
 
 //FIXED somehow the first chunk written is getting its length put into the spi_state num_sent_but_unconfirmed.
-//TODO The issue was in the amm spi_proto, so it's basically junk at this point. Ice it
 void
 prepare_chunks(struct spi_state *s, unsigned char *msg, size_t msg_len, struct waiting_chunk *wait_chunks, size_t wait_len,
 	int (*send_chunk)(uint8_t *buf, size_t len))

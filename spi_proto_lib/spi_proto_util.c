@@ -58,10 +58,11 @@ print_spi_state_full(struct spi_state *s)
 	return;
 	print_spi_state(s);
 	if (s) {
-		//TODO print out spi queue
+		//print out spi queue
 		for (unsigned int j = 0; j < SPI_MSG_QUEUE_SIZE; j++) {
 			print_spi_packet(&s->queue[j]);
 		}
+		//TODO is there anything else that isn't printed?
 	}
 }
 

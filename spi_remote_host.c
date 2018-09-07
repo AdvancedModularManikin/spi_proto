@@ -1,7 +1,3 @@
-//TODO temp for compilation
-int unknown_chunk_type_msg_count;
-extern int out_of_range_chunks;
-
 #include <stdint.h>
 #include <pthread.h>
 #include "binary_semaphore.h"
@@ -16,10 +12,11 @@ extern int out_of_range_chunks;
 #define CHUNK_LEN_GPIO CHUNK_LEN_GPIO_S2M
 
 //TODO temp for compilation
+int unknown_chunk_type_msg_count;
+extern int out_of_range_chunks;
 uint16_t bad_chunk_counter;
 
 
-//TODO put semaphores on each endpoint to allow waiting on them, give on the semaphore for each value that is received. the give should be nonblocking
 //TODO possible issue, when the thread takes on the semaphore it could end up getting the value of a previous read that some other thread triggered
 //a sempahore with a queue where only one taker is released per give would solve this issue
 
@@ -42,7 +39,7 @@ host_remote_init(struct host_remote *r)
 int
 remote_chunk_handler(struct host_remote *r, uint8_t *buf, size_t len)
 {
-	//TODO go through chunk types and bounce semaphores
+	//go through chunk types and bounce semaphores, maybe store a value
 	if (len < 2) return -1; // length zero isn't a real chunk, length 1 can't carry data
 	switch(buf[1]) {
 	case CHUNK_TYPE_GPIO:

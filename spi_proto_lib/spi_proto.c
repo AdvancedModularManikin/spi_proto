@@ -172,7 +172,6 @@ spi_proto_prep_msg(struct spi_state *s, void *buf, size_t n)
 		s->queue[s->first_unsent_seq].magic = SPI_PROTO_MAGIC_REAL;
 		pack = &s->queue[s->first_unsent_seq];
 		
-		//TODO maybe bump seq?
 		s->queue[s->first_unsent_seq].crc = spi_msg_crc(&s->queue[s->first_unsent_seq]);
 		s->first_unsent_seq++;
 		s->first_unsent_seq %= 16;

@@ -1,6 +1,5 @@
 //here for now, if we had multiple boards this would need to be separate
-//TODO centralize in a config file
-//TODO temp for compilation
+//TODO centralize in a config file, temp for compilation
 #define SOLENOID_NUM 8
 #define FLOW_NUM 1
 #define GPIO_NUM 17

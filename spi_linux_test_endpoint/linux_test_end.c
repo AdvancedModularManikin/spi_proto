@@ -36,7 +36,7 @@ static void pabort(const char *s)
 static const char *device = "/dev/spidev0.0";
 static uint8_t mode;
 static uint8_t bits = 8;
-static uint32_t speed = 8388608U; // TODO
+static uint32_t speed = 8388608U;
 static uint16_t delay;
 
 #define SPI_TRANSFER_SIZE SPI_PACKET_LEN
