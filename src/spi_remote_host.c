@@ -4,7 +4,7 @@
 #include "spi_proto.h"
 #include "spi_remote.h"
 #include "spi_remote_host.h"
-#include "spi_proto_lib/spi_chunk_defines.h"
+#include "spi_chunk_defines.h"
 
 //TODO temp
 #define CHUNK_LEN_DAC CHUNK_LEN_DAC_S2M

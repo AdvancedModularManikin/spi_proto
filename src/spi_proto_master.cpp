@@ -6,12 +6,12 @@
 
 extern "C" {
 #include "spi_proto.h"
-#include "spi_proto_lib/spi_chunk_defines.h"
+#include "spi_chunk_defines.h"
 #include "binary_semaphore.h"
 #include "spi_remote.h"
 #include "spi_remote_host.h"
 }
-#include "spi_proto_lib/spi_chunks.h"
+#include "spi_chunks.h"
 #include "spi_proto_master.h"
 
 #include <sys/ioctl.h>
