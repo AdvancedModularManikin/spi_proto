@@ -1,6 +1,6 @@
 CFLAGS=-Wall -Wextra -Wno-missing-braces -Wno-unused-variable -Wno-unused-parameter
 
-all : spi_test msg_test chunk_test resync_test spi_proto.o spi_chunks.o
+all : spi_test msg_test chunk_test resync_test spi_proto.o spi_chunks.o click-test blip-test
 
 spi_test: test/spi_proto_tests.c libspiproto.a test/test_util.o spi_proto_util.o
 	gcc $(CFLAGS) -o spi_test test/spi_proto_tests.c test/test_util.o crc16.o spi_proto_util.o -L. -lspiproto -I. -Isrc
@@ -35,3 +35,9 @@ clean:
 libspiproto.a: spi_proto.o crc16.o
 	ar rc libspiproto.a spi_proto.o crc16.o
 	ranlib libspiproto.a
+
+click-test: test/click_test.cpp
+	g++ click-test.cpp spi_proto_master.cpp spi_proto_lib/spi_chunks.cpp -std=c++14 -pthread -x c binary_semaphore.c -x c spi_proto_lib/spi_proto.c -I. -Ispi_proto_lib/ -x c crc16.c -x c spi_remote_host.c -o click-test -g
+
+blip-test: test/blip-test.cpp
+	g++ blip-test.cpp spi_proto_master.cpp spi_proto_lib/spi_chunks.cpp -std=c++14 -pthread -x c binary_semaphore.c -x c spi_proto_lib/spi_proto.c -I. -Ispi_proto_lib/ -x c crc16.c -x c spi_remote_host.c -o blip-test -g
