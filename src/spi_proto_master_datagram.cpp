@@ -58,7 +58,7 @@ datagram_task(void)
 	bool closed = 0;
 	puts("datagram task started!");
 	while (!closed) {
-		puts("datagram preparing message");
+		//puts("datagram preparing message");
 		int ret = spi_proto_prep_msg(&spi_proto::p.proto, sendbuf, TRANSFER_SIZE);
 		/*
 		printf("ret was %d\n", ret);	
@@ -67,9 +67,9 @@ datagram_task(void)
 		puts("");
 		*/
 		//do SPI communication
-		puts("datagram performing transfer");
+		//puts("datagram performing transfer");
 		int spi_tr_res = spi_transfer(spi_fd, sendbuf, recvbuf, TRANSFER_SIZE);
-		printf("transfer returned %d\n", spi_tr_res);
+		//printf("transfer returned %d\n", spi_tr_res);
 		/*
 		printf("IN\t");
 		for (int i = 0; i < 16; i++) printf("%02x ", recvbuf[i]);
@@ -77,7 +77,7 @@ datagram_task(void)
 		*/
 		struct spi_packet pack;
 		memcpy(&pack, recvbuf, TRANSFER_SIZE);
-		puts("datagram protocol processing");
+		//puts("datagram protocol processing");
 		spi_proto_rcv_msg(&spi_proto::p.proto, &pack, click_remote);
 		
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
