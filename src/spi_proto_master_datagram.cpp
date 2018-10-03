@@ -78,7 +78,7 @@ datagram_task(void)
 		struct spi_packet pack;
 		memcpy(&pack, recvbuf, TRANSFER_SIZE);
 		//puts("datagram protocol processing");
-		spi_proto_rcv_msg(&spi_proto::p.proto, &pack, click_remote);
+		spi_proto_rcv_msg(&spi_proto::p.proto, &pack, spi_callback);
 		
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		++count;
@@ -104,10 +104,4 @@ send_message(uint8_t *buf, size_t len)
 	//TODO check return value
 	//puts("SENDING A MESSAGE FAILED!");
 	return -1;
-}
-
-void
-click_remote(struct spi_packet *p)
-{
-	//TODO handle message, pass to user-supplied callback probs
 }

@@ -12,7 +12,8 @@ int
 master_send_message(struct master_spi_proto &p, unsigned char *buf, unsigned int len);
 }
 
+extern void (*spi_callback)(struct spi_packet*);
+
 int
 send_message(uint8_t *buf, size_t len);
 void remote_task(void);
-void click_remote(struct spi_packet *p);
