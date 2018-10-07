@@ -32,7 +32,7 @@ namespace spi_proto {
 static const char *device = "/dev/spidev0.0";
 static uint8_t mode;
 static uint8_t bits = 8;
-static uint32_t speed = 1 << 23;
+static uint32_t speed = 500000;//1 << 23;
 static uint16_t delay;
 
 int spi_transfer(int fd, const unsigned char *tx_buf, unsigned char *rx_buf, __u32 buflen) {
