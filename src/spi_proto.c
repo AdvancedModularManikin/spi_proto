@@ -78,6 +78,7 @@ spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, spi_msg_callback_t 
 				s->num_sent_but_unconfirmed--;
 				s->num_avail++;
 				s->first_unconfirmed_seq++;
+				s->first_unconfirmed_seq %= 16;
 			}
 			s->num_sent_successfully++;
 		}
@@ -259,6 +260,10 @@ spi_proto_check_invariants(struct spi_state *s)
 	//TODO also check for each of these individually being over 16
 	if ((s->num_avail + s->num_unsent + s->num_sent_but_unconfirmed) != 16)
 		return -3;
+
+	if (s->first_unconfirmed_seq > 16) return -4;
+	if (s->first_avail_seq > 16) return -4;
+	if (s->first_unsent_seq > 16) return -4;
 	
 	return 0;
 }
