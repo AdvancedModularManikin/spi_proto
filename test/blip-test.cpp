@@ -3,6 +3,7 @@
 #include <thread>
 
 extern "C" {
+#include "binary_semaphore.h"
 #include "spi_proto.h"
 #include "spi_remote.h"
 #include "spi_remote_host.h"
@@ -13,6 +14,11 @@ using namespace spi_proto;
 
 void
 blip_task(void);
+void spi_callback_f(struct spi_packet *p)
+{
+	return;
+}
+void (*spi_callback)(struct spi_packet *p) = spi_callback_f;
 
 int main(int argc, char *argv[]) {
 	std::thread remote_thread(datagram_task);
@@ -46,10 +52,12 @@ blip_task(void)
 	puts("starting blinking!");
 	for (;;) {
 		puts("blink slow");
-		send_message({60},1);
+		uint8_t buf[1] = {60};
+		send_message(buf,1);
 		delay_ms(wait);
 		puts("blink fast");
-		send_message({120},1);
+		uint8_t buf2[1] = {120};
+		send_message(buf2,1);
 		delay_ms(wait);
 	}
 }

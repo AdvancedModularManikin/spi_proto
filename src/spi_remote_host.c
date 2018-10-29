@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 #include <pthread.h>
 #include "binary_semaphore.h"
 #include "spi_proto.h"

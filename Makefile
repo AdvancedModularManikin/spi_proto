@@ -31,13 +31,18 @@ test/test_util.o: test/test_util.c
 
 clean:
 	rm -f spi_test msg_test chunk_test resync_test spi_proto.o spi_chunks.o crc16.o test/test_util.o libspiproto.a binary_semaphore.o spi_proto_util.o spi_remote.o
+	rm -f click-test blip-test
 
 libspiproto.a: spi_proto.o crc16.o
 	ar rc libspiproto.a spi_proto.o crc16.o
 	ranlib libspiproto.a
 
-click-test: test/click_test.cpp
-	g++ click-test.cpp spi_proto_master.cpp spi_proto_lib/spi_chunks.cpp -std=c++14 -pthread -x c binary_semaphore.c -x c spi_proto_lib/spi_proto.c -I. -Ispi_proto_lib/ -x c crc16.c -x c spi_remote_host.c -o click-test -g
+click-test: test/click-test.cpp libspiproto.a spi_chunks.o test/test_util.o spi_proto_util.o
+	#g++ $(CFLAGS) -o click-test test/click-test.cpp -std=c++14 -pthread spi_chunks.o test/test_util.o spi_proto_util.o -L. -lspiproto -I. -Isrc
+	g++ test/click-test.cpp src/spi_proto_master.cpp src/spi_chunks.cpp -std=c++14 -pthread -x c src/binary_semaphore.c -x c src/spi_proto.c -I. -Isrc/ -x c src/crc16.c -x c src/spi_remote_host.c -o click-test -g
 
-blip-test: test/blip-test.cpp
-	g++ blip-test.cpp spi_proto_master.cpp spi_proto_lib/spi_chunks.cpp -std=c++14 -pthread -x c binary_semaphore.c -x c spi_proto_lib/spi_proto.c -I. -Ispi_proto_lib/ -x c crc16.c -x c spi_remote_host.c -o blip-test -g
+
+blip-test: test/blip-test.cpp libspiproto.a spi_chunks.o test/test_util.o spi_proto_util.o
+	#g++ $(CFLAGS) -o blip-test test/blip-test.cpp -std=c++14 -pthread spi_chunks.o test/test_util.o spi_proto_util.o -L. -lspiproto -I. -Isrc
+	g++ test/blip-test.cpp src/spi_proto_master_datagram.cpp src/spi_chunks.cpp -std=c++14 -pthread -x c src/binary_semaphore.c -x c src/spi_proto.c -I. -Isrc/ -x c src/crc16.c -x c src/spi_remote_host.c -o blip-test -g
+
