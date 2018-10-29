@@ -1,14 +1,7 @@
 //g++ test/click-test.cpp src/spi_proto_master.cpp src/spi_chunks.cpp -std=c++14 -pthread -x c src/binary_semaphore.c -x c src/spi_proto.c -I. -Isrc/ -x c src/crc16.c -x c src/spi_remote_host.c -o click -g
 //causes solenoids to click in strobing sequence. Remote API test
 #include <thread>
-
-extern "C" {
-#include "spi_proto.h"
-#include "binary_semaphore.h"
 #include "spi_remote.h"
-#include "spi_remote_host.h"
-}
-#include "spi_proto_master.h"
 
 using namespace spi_proto;
 

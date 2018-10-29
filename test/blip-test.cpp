@@ -1,24 +1,13 @@
 //g++ click-test.cpp spi_proto_master.cpp spi_proto_lib/spi_chunks.cpp -std=c++14 -pthread -x c binary_semaphore.c -x c spi_proto_lib/spi_proto.c -I. -Ispi_proto_lib/ -x c crc16.c -x c spi_remote_host.c -o click -g
 //causes solenoids to click in strobing sequence. Remote API test
 #include <thread>
-
-extern "C" {
-#include "binary_semaphore.h"
-#include "spi_proto.h"
-#include "spi_remote.h"
-#include "spi_remote_host.h"
-}
-#include "spi_proto_master_datagram.h"
+#include "spi_datagram.h"
 
 using namespace spi_proto;
 
 void
 blip_task(void);
-void spi_callback_f(struct spi_packet *p)
-{
-	return;
-}
-void (*spi_callback)(struct spi_packet *p) = spi_callback_f;
+void (*spi_callback)(struct spi_packet *p) = NULL;
 
 int main(int argc, char *argv[]) {
 	std::thread remote_thread(datagram_task);

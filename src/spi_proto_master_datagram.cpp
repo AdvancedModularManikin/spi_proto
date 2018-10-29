@@ -7,7 +7,7 @@
 extern "C" {
 #include "spi_proto.h"
 //TODO delete these two
-#include "spi_remote.h"
+#include "spi_remote_api.h"
 }
 #include "spi_proto_master_datagram.h"
 

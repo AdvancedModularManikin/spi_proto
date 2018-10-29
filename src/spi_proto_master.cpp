@@ -8,7 +8,7 @@ extern "C" {
 #include "spi_proto.h"
 #include "spi_chunk_defines.h"
 #include "binary_semaphore.h"
-#include "spi_remote.h"
+#include "spi_remote_api.h"
 #include "spi_remote_host.h"
 }
 #include "spi_chunks.h"
