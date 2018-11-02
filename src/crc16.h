@@ -13,11 +13,10 @@
 
 #ifndef CRC_16_H_
 #define CRC_16_H_ 1
-
 /* ======================================================================== */
 /*  CRC16_TBL    -- Lookup table used for the CRC-16 code.                  */
 /* ======================================================================== */
-extern const uint_16 crc16_tbl[256];
+extern const uint16_t crc16_tbl[256];
 
 /* ======================================================================== */
 /*  CRC16_UPDATE -- Updates a 16-bit CRC using the lookup table above.      */
@@ -26,7 +25,7 @@ extern const uint_16 crc16_tbl[256];
 /*                                                                          */
 /*                  All-caps version is a macro for stuff that can use it.  */
 /* ======================================================================== */
-uint_16 crc16_update(uint_16 crc, uint_8 data);
+uint16_t crc16_update(uint16_t crc, uint8_t data);
 #define CRC16_UPDATE(crc, d) (((crc) << 8) ^ crc16_tbl[((crc) >> 8) ^ (d)])
 
 /* ======================================================================== */
@@ -34,7 +33,7 @@ uint_16 crc16_update(uint_16 crc, uint_8 data);
 /*                  Note:  The 16-bit CRC is set up as a left-shifting      */
 /*                  CRC with no inversions.                                 */
 /* ======================================================================== */
-uint_16 crc16_block(uint_16 crc, uint_8 *data, int len);
+uint16_t crc16_block(uint16_t crc, uint8_t *data, int len);
 
 #endif
 /* ======================================================================== */

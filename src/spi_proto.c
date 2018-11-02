@@ -4,21 +4,18 @@
 #include <stdio.h>
 #endif
 
-#ifdef CPP
+#ifdef __cplusplus
 extern "C" {
 #endif
-#include "config.h"
 #include "crc16.h"
-#ifdef CPP
+#ifdef __cplusplus
 }
 #endif
 
 #include "spi_proto.h"
 
-//TODO this was made CPP to fix a linker error, instead determine what was causing the cross-language linking to fail and fix that so this can be pure C
-
 //update the protocol state with a message. Doesn't do any processing of the message itselves
-#ifdef CPP
+#ifdef __cplusplus
 extern "C" {
 #endif
 void
@@ -276,6 +273,6 @@ spi_msg_crc(struct spi_packet *p)
 	//p->crc = crc_res;
 	return crc_res;
 }
-#ifdef CPP
+#ifdef __cplusplus
 } // extern C
 #endif

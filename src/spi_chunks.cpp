@@ -8,7 +8,7 @@
 #include "spi_chunks.h"
 //#include "spi_chunks_slave.h"
 
-#ifdef CPP
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -67,6 +67,6 @@ spi_msg_chunks(uint8_t *buf, size_t len, int (*chunk_handler)(uint8_t *b, size_t
 	return 0;
 }
 
-#ifdef CPP
+#ifdef __cplusplus
 }
 #endif

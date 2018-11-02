@@ -2,12 +2,11 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#ifdef CPP
+#ifdef __cplusplus
 extern "C" {
 #endif
-#include "config.h"
 #include "crc16.h"
-#ifdef CPP
+#ifdef __cplusplus
 }
 #endif
 

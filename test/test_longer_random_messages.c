@@ -7,9 +7,8 @@
 
 #include "spi_proto.h"
 #include "spi_proto_util.h"
-#include "config.h"
 #include "crc16.h"
-#include "test/test_util.h"
+#include "test_util.h"
 
 //SPI protocol testing
 

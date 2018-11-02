@@ -1,6 +1,6 @@
 #include <pthread.h>
 #include "binary_semaphore.h"
-#ifdef CPP
+#ifdef __cplusplus
 extern "C" {
 #endif
 void bisem_post(struct binary_semaphore *p)
@@ -37,6 +37,6 @@ bisem_destroy(struct binary_semaphore *p)
 	pthread_cond_destroy(&p->cvar);
 	pthread_mutex_destroy(&p->mutex);
 }
-#ifdef CPP
+#ifdef __cplusplus
 } // extern
 #endif

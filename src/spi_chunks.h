@@ -1,4 +1,7 @@
-
+#pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 struct waiting_chunk {
 	uint8_t buf[SPI_MSG_PAYLOAD_LEN];
 	//buf[0] is len
@@ -13,3 +16,6 @@ spi_msg_chunks(uint8_t *buf, size_t len, int (*chunk_handler)(uint8_t *b, size_t
 int
 chunk_packer(struct waiting_chunk *chunks, size_t numchunk,
 	uint8_t *buf, size_t len);
+#ifdef __cplusplus
+}
+#endif

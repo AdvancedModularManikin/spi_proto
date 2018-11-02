@@ -4,7 +4,7 @@
 
 #define SPI_REPEAT_RESYNC_THRESH 10
 
-#ifdef CPP
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -90,6 +90,6 @@ spi_proto_send_msg(struct spi_state *s, void *buf, size_t n);
 uint16_t
 spi_msg_crc(struct spi_packet *p);
 
-#ifdef CPP
+#ifdef __cplusplus
 } // extern C
 #endif
