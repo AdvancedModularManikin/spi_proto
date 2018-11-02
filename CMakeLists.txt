@@ -8,19 +8,19 @@ project(spi_proto)
 
 add_library(spiproto STATIC src/spi_proto.c src/crc16.c src/spi_chunks.cpp)
 
-add_executable(resync_test test/test_resync.c test/test_util.c)
+add_executable(resync_test EXCLUDE_FROM_ALL test/test_resync.c test/test_util.c)
 target_link_libraries(resync_test spiproto)
 target_include_directories(resync_test PUBLIC src/ PUBLIC test/)
 
-add_executable(spi_test test/spi_proto_tests.c test/test_util.c src/spi_proto_util.c)
+add_executable(spi_test EXCLUDE_FROM_ALL test/spi_proto_tests.c test/test_util.c src/spi_proto_util.c)
 target_link_libraries(spi_test spiproto)
 target_include_directories(spi_test PUBLIC src/ PUBLIC test/)
 
-add_executable(test_longer_random_messages test/test_longer_random_messages.c test/test_util.c)
+add_executable(test_longer_random_messages EXCLUDE_FROM_ALL test/test_longer_random_messages.c test/test_util.c)
 target_link_libraries(test_longer_random_messages spiproto)
 target_include_directories(test_longer_random_messages PUBLIC src/ PUBLIC test/)
 
-add_executable(chunk_test test/test_chunks.c test/test_util.c src/spi_proto_util.c)
+add_executable(chunk_test EXCLUDE_FROM_ALL test/test_chunks.c test/test_util.c src/spi_proto_util.c)
 target_link_libraries(chunk_test spiproto)
 target_include_directories(chunk_test PUBLIC src/ PUBLIC test/)
 
