@@ -97,10 +97,10 @@ gpio_handle_master(struct host_gpio *gpio, size_t n, struct gpio_response *c)
 	if (c->gpio_id > GPIO_NUM) {out_of_range_chunks++;return;}
 	if (c->cmd == OP_GET) {
 		gpio[c->gpio_id].last_read = c->val;
-		printf("posting gpio sem %d\n", c->gpio_id);
+		//printf("posting gpio sem %d\n", c->gpio_id);
 		bisem_post(&gpio[c->gpio_id].sem);
 	} else if (c->cmd == OP_SET) {
-		printf("posting gpio sem %d\n", c->gpio_id);
+		//printf("posting gpio sem %d\n", c->gpio_id);
 		bisem_post(&gpio[c->gpio_id].sem);
 	} else {
 		//TODO other ops
