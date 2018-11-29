@@ -50,6 +50,7 @@ remote_chunk_handler(struct host_remote *r, uint8_t *buf, size_t len)
 		struct gpio_response gpiocmd;
 		gpiocmd.gpio_id = buf[2];
 		gpiocmd.cmd = buf[3];
+		gpiocmd.val = buf[4];
 		gpio_handle_master(r->gpio, GPIO_NUM, &gpiocmd);
 		break;
 	case CHUNK_TYPE_ADC:
@@ -92,14 +93,24 @@ adc_handle_master(struct host_adc *adc, size_t n, struct adc_response *a)
 }
 
 void
+print_gpio_response(struct gpio_response *c)
+{
+	printf("\tgpio_id:\t%d\n", c->gpio_id);
+	printf("\tcmd:\t%d\n", c->cmd);
+	printf("\tval:\t0x%04x\n", c->val);
+}
+
+void
 gpio_handle_master(struct host_gpio *gpio, size_t n, struct gpio_response *c)
 {
 	if (c->gpio_id > GPIO_NUM) {out_of_range_chunks++;return;}
 	if (c->cmd == OP_GET) {
+		printf("GET gpio: \n");
+		print_gpio_response(c);
 		gpio[c->gpio_id].last_read = c->val;
 		//printf("posting gpio sem %d\n", c->gpio_id);
 		bisem_post(&gpio[c->gpio_id].sem);
-	} else if (c->cmd == OP_SET) {
+	} else if (c->cmd == OP_SET || c->cmd == OP_SET_META) {
 		//printf("posting gpio sem %d\n", c->gpio_id);
 		bisem_post(&gpio[c->gpio_id].sem);
 	} else {

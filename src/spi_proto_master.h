@@ -20,6 +20,12 @@ void remote_set_dac(unsigned int ix, uint16_t val);
 
 void
 remote_set_gpio(int gpio, int on);
+int
+remote_get_gpio(int gpio);
+
+//TODO convert to unsigned char flags
+void
+remote_set_gpio_meta(int gpio, int in);
 
 int
 send_chunk(uint8_t *buf, size_t len);

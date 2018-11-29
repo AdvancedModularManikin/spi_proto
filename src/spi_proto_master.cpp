@@ -116,16 +116,24 @@ remote_set_gpio(int gpio, int on)
 	bisem_wait(&remote.gpio[gpio].sem);
 	return;
 }
-/* TODO needs ability to set meta information and change the direction of a gpio
-void
-remote_get_gpio(int gpio, int on)
+//TODO needs ability to set meta information and change the direction of a gpio
+int
+remote_get_gpio(int gpio)
 {
 	uint8_t buf[4] = {4, CHUNK_TYPE_GPIO, gpio, OP_GET};
 	send_chunk(buf, 4);
 	bisem_wait(&remote.gpio[gpio].sem);
 	return remote.gpio[gpio].last_read;
 }
-*/
+void
+remote_set_gpio_meta(int gpio, int in)
+{
+	uint8_t buf[5] = {5, CHUNK_TYPE_GPIO, gpio, OP_SET_META, in};
+	send_chunk(buf, 5);
+	bisem_wait(&remote.gpio[gpio].sem);
+	return;
+}
+
 void
 remote_set_dac(unsigned int dac, uint16_t val)
 {
