@@ -21,12 +21,11 @@ uint16_t bad_chunk_counter;
 //TODO possible issue, when the thread takes on the semaphore it could end up getting the value of a previous read that some other thread triggered
 //a sempahore with a queue where only one taker is released per give would solve this issue
 
-
 void
 host_remote_init(struct host_remote *r)
 {
 	//currently only initialize the semaphores
-
+	
 	for (int i = 0; i < ADC_NUM; i++) {
 		bisem_init(&r->adc[i].sem);
 	}
@@ -45,8 +44,7 @@ remote_chunk_handler(struct host_remote *r, uint8_t *buf, size_t len)
 	switch(buf[1]) {
 	case CHUNK_TYPE_GPIO:
 		if (len < CHUNK_LEN_GPIO) {bad_chunk_counter++;break;}
-		// [LEN|TYPE|ID|CMD]
-		//TODO what about val
+		// [LEN|TYPE|ID|CMD|VAL]
 		struct gpio_response gpiocmd;
 		gpiocmd.gpio_id = buf[2];
 		gpiocmd.cmd = buf[3];
@@ -55,8 +53,7 @@ remote_chunk_handler(struct host_remote *r, uint8_t *buf, size_t len)
 		break;
 	case CHUNK_TYPE_ADC:
 		if (len < CHUNK_LEN_ADC) {bad_chunk_counter++;break;}
-		// [LEN|TYPE|ID|CMD]
-		//TODO what about val
+		// [LEN|TYPE|ID|CMD|VAL|VAL|VAL|VAL]
 		struct adc_response adccmd;
 		adccmd.adc_id = buf[2];
 		adccmd.cmd = buf[3];
@@ -105,8 +102,8 @@ gpio_handle_master(struct host_gpio *gpio, size_t n, struct gpio_response *c)
 {
 	if (c->gpio_id > GPIO_NUM) {out_of_range_chunks++;return;}
 	if (c->cmd == OP_GET) {
-		printf("GET gpio: \n");
-		print_gpio_response(c);
+		//printf("GET gpio: \n");
+		//print_gpio_response(c);
 		gpio[c->gpio_id].last_read = c->val;
 		//printf("posting gpio sem %d\n", c->gpio_id);
 		bisem_post(&gpio[c->gpio_id].sem);

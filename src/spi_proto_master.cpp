@@ -24,6 +24,7 @@ struct host_remote remote;
 namespace spi_proto {
 	struct master_spi_proto p;
 }
+pthread_mutex_t wait_chunks_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 //TODO centralize
 #define TRANSFER_SIZE 36
@@ -148,15 +149,18 @@ send_chunk(uint8_t *buf, size_t len)
 {
 	//find an open waiting_chunk in waiting_chunks and copy it in
 	//TODO use wait_chunks more like a ring buffer for fairness
+	pthread_mutex_lock(&wait_chunks_mutex);
 	for (int i = 0; i < NUM_WAIT_CHUNKS; i++) {
 		if (!wait_chunks[i].ready_to_pack) {
 			memcpy(wait_chunks[i].buf, buf, len);
 			wait_chunks[i].buf[0] = len; // just in case
 			wait_chunks[i].ready_to_pack = 1;
+			pthread_mutex_unlock(&wait_chunks_mutex);
 			return 0;
 		}
 	}
 	puts("SENDING A CHUNK FAILED!");
+	pthread_mutex_unlock(&wait_chunks_mutex);
 	return -1;
 }
 

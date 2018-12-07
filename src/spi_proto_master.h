@@ -13,6 +13,7 @@ spi_proto_master_initialize(struct master_spi_proto *s);
 int
 master_send_message(struct master_spi_proto &p, unsigned char *buf, unsigned int len);
 }
+extern pthread_mutex_t wait_chunks_mutex;
 
 uint32_t
 remote_get_adc(unsigned int ix);
