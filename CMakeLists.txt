@@ -28,6 +28,10 @@ add_executable(gpio_meta_test EXCLUDE_FROM_ALL test/gpio-meta-test.cpp test/test
 target_link_libraries(gpio_meta_test spiproto pthread)
 target_include_directories(gpio_meta_test PUBLIC src/ PUBLIC test/)
 
+add_executable(monitor EXCLUDE_FROM_ALL test/monitor.cpp test/test_util.c src/spi_proto_util.c src/spi_remote_host.c src/binary_semaphore.c src/spi_chunks.cpp src/spi_proto_master_datagram.cpp)
+target_link_libraries(monitor spiproto pthread)
+target_include_directories(monitor PUBLIC src/ PUBLIC test/)
+
 #TODO can only run on linux
 #click-test: test/click-test.cpp libspiproto.a spi_chunks.o test/test_util.o spi_proto_util.o
 #	#g++ $(CFLAGS) -o click-test test/click-test.cpp -std=c++14 -pthread spi_chunks.o test/test_util.o spi_proto_util.o -L. -lspiproto -I. -Isrc
