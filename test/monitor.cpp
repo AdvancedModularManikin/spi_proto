@@ -7,6 +7,11 @@ void delay_ms(unsigned int ms) {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
+#define NUM_VALUES 35
+int values[NUM_VALUES] = {0};
+int trigger[2] = {0};
+bool trigger_set = false;
+uint idx = 0;
 
 struct spi_packet spi_recv_msg; // Local variable holding the latest received spi message
 bool spi_recv_fresh = false;    // Local flag indicating there is fresh data in spi_recv_msg
@@ -22,8 +27,21 @@ void spi_message_handler_callback(struct spi_packet *p /* this pointer is to mem
 		}
 		puts("");
 		*/
-		printf("ADC%s_SE%d%s:\t %04d\n", p->msg[0] ? "1" : "0", p->msg[1],
-			       p->msg[2] ? "b" : "a", p->msg[3] << 8 | p->msg[4]);
+//		printf("ADC%s_SE%d%s:\t %04d\n", p->msg[0] ? "1" : "0", p->msg[1],
+//			       p->msg[2] ? "b" : "a", p->msg[3] << 8 | p->msg[4]);
+		values[idx++] = p->msg[3] << 8 | p->msg[4];
+		if (trigger_set) {
+			if (p->msg[0] == trigger[0] && p->msg[1] == trigger[1]) {
+				for (int i=0; i<NUM_VALUES; i++) {
+					printf("%04d ", values[i]);
+				}
+				printf("\n");
+				idx = 0;
+			}
+		} else {
+			trigger_set = true;
+			trigger[0] = p->msg[0]; trigger[1] = p->msg[1];
+		}
 	}
     //memcpy(&spi_recv_msg, p, sizeof(struct spi_packet));
     //spi_recv_fresh = true;
