@@ -24,6 +24,7 @@ struct host_remote remote;
 namespace spi_proto {
 	struct master_spi_proto p;
 }
+pthread_mutex_t wait_chunks_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 //TODO centralize
 #define TRANSFER_SIZE 36
@@ -116,16 +117,24 @@ remote_set_gpio(int gpio, int on)
 	bisem_wait(&remote.gpio[gpio].sem);
 	return;
 }
-/* TODO needs ability to set meta information and change the direction of a gpio
-void
-remote_get_gpio(int gpio, int on)
+//TODO needs ability to set meta information and change the direction of a gpio
+int
+remote_get_gpio(int gpio)
 {
 	uint8_t buf[4] = {4, CHUNK_TYPE_GPIO, gpio, OP_GET};
 	send_chunk(buf, 4);
 	bisem_wait(&remote.gpio[gpio].sem);
 	return remote.gpio[gpio].last_read;
 }
-*/
+void
+remote_set_gpio_meta(int gpio, int in)
+{
+	uint8_t buf[5] = {5, CHUNK_TYPE_GPIO, gpio, OP_SET_META, in};
+	send_chunk(buf, 5);
+	bisem_wait(&remote.gpio[gpio].sem);
+	return;
+}
+
 void
 remote_set_dac(unsigned int dac, uint16_t val)
 {
@@ -140,15 +149,18 @@ send_chunk(uint8_t *buf, size_t len)
 {
 	//find an open waiting_chunk in waiting_chunks and copy it in
 	//TODO use wait_chunks more like a ring buffer for fairness
+	pthread_mutex_lock(&wait_chunks_mutex);
 	for (int i = 0; i < NUM_WAIT_CHUNKS; i++) {
 		if (!wait_chunks[i].ready_to_pack) {
 			memcpy(wait_chunks[i].buf, buf, len);
 			wait_chunks[i].buf[0] = len; // just in case
 			wait_chunks[i].ready_to_pack = 1;
+			pthread_mutex_unlock(&wait_chunks_mutex);
 			return 0;
 		}
 	}
 	puts("SENDING A CHUNK FAILED!");
+	pthread_mutex_unlock(&wait_chunks_mutex);
 	return -1;
 }
 

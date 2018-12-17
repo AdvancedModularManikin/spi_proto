@@ -35,16 +35,11 @@ The semaphores used are not queueing semaphores, so it's possible that if two th
 
 ## Usage
 
-You must include the following headers:
+Include the following header:
 
-    #include <thread>
-    extern "C" {
-    #include "spi_proto.h"
-    #include "binary_semaphore.h"
     #include "spi_remote.h"
-    #include "spi_remote_host.h"
-    }
-    #include "spi_proto_master.h"
+
+You must put the file `99-spidev-open.rules` into `/etc/udev/rules.d` and either reboot or run `udevadm control --reload-rules`
 
 ### Function usage
 
@@ -82,4 +77,3 @@ This is used by all functions to enqueue messages to be packed to be sent over t
 ## example
 
 `test/click-test.cpp` is a simple example.
-

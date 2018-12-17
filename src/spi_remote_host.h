@@ -32,6 +32,7 @@ struct host_remote {
 	struct host_dac dac[DAC_NUM];
 	struct host_flow flow[FLOW_NUM];
 };
+extern pthread_mutex_t wait_chunks_mutex;
 
 //TODO rather than creating host_motor just use host_gpio and host_dac
 //IDEA monitor which chunks go into which messages and the current last_unconfirmed to signal successful sends of messages that don't need to return. Flaw: this would be complicated and round-trip confirmation is ez, what about other errors? Confirmation is a good thing.

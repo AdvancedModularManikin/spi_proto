@@ -13,6 +13,7 @@ spi_proto_master_initialize(struct master_spi_proto *s);
 int
 master_send_message(struct master_spi_proto &p, unsigned char *buf, unsigned int len);
 }
+extern pthread_mutex_t wait_chunks_mutex;
 
 uint32_t
 remote_get_adc(unsigned int ix);
@@ -20,6 +21,12 @@ void remote_set_dac(unsigned int ix, uint16_t val);
 
 void
 remote_set_gpio(int gpio, int on);
+int
+remote_get_gpio(int gpio);
+
+//TODO convert to unsigned char flags
+void
+remote_set_gpio_meta(int gpio, int in);
 
 int
 send_chunk(uint8_t *buf, size_t len);

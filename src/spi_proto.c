@@ -48,7 +48,8 @@ spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, spi_msg_callback_t 
 				}
 			}
 		} else {
-			//TODO CONFIRM probably nothing, but how to handle a desync? is such a desync even possible?
+			//either a message was dropped or we're desynced. Both cases are
+			//handled later.
 			//take no action on this side. Either our message was sent correctly (so the other side knows to change) or it wasn't, so they don't have any information about what we expect but they can learn later. XXX possible optimization would be to revert to last-known-expected if an incoming message is garbled, look at that later
 		}
 
@@ -69,7 +70,7 @@ spi_proto_rcv_msg(struct spi_state *s, struct spi_packet *p, spi_msg_callback_t 
 #ifdef DEBUG_SPI_PROTO
 			puts ("case triggered");
 #endif
-			//if last sent message was real don't free space (because it was never used)
+			//if last sent message wasn't real don't free space (because it was never used)
 			//able to just check if num_sent_but_unconfirmed is 0, because that means we sent a filler.
 			if (s->num_sent_but_unconfirmed) {
 				s->num_sent_but_unconfirmed--;
@@ -226,21 +227,9 @@ spi_proto_initialize(struct spi_state *s)
 
 	memset(s, 0, sizeof(struct spi_state));
 	s->num_avail = SPI_MSG_QUEUE_SIZE;
-	/*
-	s->num_unsent = 0;
-	s->num_sent_but_unconfirmed = 0;
-	
-	s->oldest_unconfirmed_seq = 0;
-	s->first_unconfirmed_seq = 0;
-	s->first_unsent_seq = 0;
-	s->first_avail_seq = 0;
-	
-	
-	s->our_seq = 0;
-	s->our_next_preack = 0;
-	s->we_sent_seq = 0;
-	s->we_sent_preack = 0;
-	//*/
+#ifdef DEBUG_SPI_PROTO
+	assert(spi_proto_check_invariants(s));
+#endif
 }
 
 int
