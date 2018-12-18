@@ -7,7 +7,7 @@ void delay_ms(unsigned int ms) {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
-#define NUM_VALUES 16
+#define NUM_VALUES 15
 int values[NUM_VALUES] = {0};
 int trigger[2] = {0};
 bool trigger_set = false;
@@ -34,6 +34,7 @@ void spi_message_handler_callback(struct spi_packet *p /* this pointer is to mem
 		values[p->msg[5]] = p->msg[3] << 8 | p->msg[4];
 		if (!(p->msg[5])) {
 				for (int i=0; i<NUM_VALUES; i++) {
+					printf("%d:", i);
 					printf("%04d ", values[i]);
 				}
 				printf("\n");
