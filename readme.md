@@ -21,17 +21,18 @@ This will allow non-privileged users (specifically the `amm` user) to access the
 Set gpio number `ix` to `val`.
 Blocking.
 
-`void remote_set_gpio_meta(int ix, int val)`
-
-Set direction of gpio number `ix`.
-Blocking.
-See [spi_chunk_defines.h](src/spi_chunk_defines.h) for parameter meanings.
-
 `bool remote_get_gpio(int ix)`
 
 Get the input of gpio number `ix`.
 Blocking.
 You should first set the direction of the gpio with `remote_set_gpio_meta`.
+
+`void remote_set_gpio_meta(int ix, int val)`
+
+Set direction of gpio number `ix` to `val`.
+Blocking.
+`val` is either `OP_SET` or `OP_GET` (defined in [spi_chunk_defines.h](src/spi_chunk_defines.h)).
+GPIO default to `OP_SET`.
 
 `void remote_set_dac(int ix, int val)`
 
@@ -70,7 +71,7 @@ The first byte of `buf` is overwritten with `len`.
 There is another thread, `remote_thread`, which handles sending and receiving all SPI messages.
 The application can send length-prefixed chunks to this thread, which are then greedily packed into the next outgoing message.
 The remote thread signals the controlling thread through semaphores in a struct `remote` linked in in `spi_proto_master.cpp`.
-On the tiny there is a function which dispatches several kinds of chunks.
+On the k66f there is a function which dispatches several kinds of chunks.
 The flow for using a peripheral is as follows:
 
 [where]  
@@ -78,7 +79,7 @@ The flow for using a peripheral is as follows:
 1. [app] Send a chunk with a command for that peripheral
 2. [app] Wait and block on the semaphore for that peripheral.
 3. [remote] Send the chunk.
-4. [tiny] Receive chunk, perform action, and send confirmation chunk.
+4. [k66f] Receive chunk, perform action, and send confirmation chunk.
 5. [remote] Receive chunk and dispatch, storing any return value and signaling on the appropriate semaphore.
 6. [app] Return from semaphore and take return value, if any.
 
