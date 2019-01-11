@@ -15,6 +15,11 @@ It requires `heartrateLED.elf` from the `amm-tiny` repo to be on the k66f.
 * -2 if no space available to send message
 
 The `spi_callback` variable is a callback for received messages.
+
+    extern void (*spi_callback)(struct spi_packet*);
+
+This function receives the protocol information as well as payload, which is in field `msg` of the argument.
+`msg` is declared `uint8_t msg[SPI_MSG_PAYLOAD_LEN];`.
 If you do not need to receive messages, it can be `NULL` but it must be present.
 
 `void datagram_task(void)` should be called as a thread, e.g. `std::thread thread(datagram_task);`, and must be running before `send_message` is called.
