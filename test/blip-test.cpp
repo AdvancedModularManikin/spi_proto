@@ -7,6 +7,7 @@ using namespace spi_proto;
 
 void
 blip_task(void);
+
 /* We need to declare a function pointer, the library expects to be linked with
  * one. It's not necessary that it be an actual function.
  *
