@@ -3,7 +3,7 @@
 Unlike the remote api with its many functions, this has only two, send and receive a message.
 You must write a custom program running on the AMMDK k66f to make any practical use of this functionality.
 
-`test/blip-test.cpp` is an example of a program that uses this API.
+[`test/blip-test.cpp`] is an example of a program that uses this API.
 It requires `heartrateLED.elf` from the `amm-tiny` repo to be on the k66f.
 
 ## Functions
