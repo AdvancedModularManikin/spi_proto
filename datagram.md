@@ -17,4 +17,4 @@ It requires `heartrateLED.elf` from the `amm-tiny` repo to be on the k66f.
 The `spi_callback` variable is a callback for received messages.
 If you do not need to receive messages, it can be `NULL` but it must be present.
 
-`void datagram_task(void)` should be called as a thread, like `std::thread thread(datagram_task);` and must be running before `send_message` is called.
+`void datagram_task(void)` should be called as a thread, e.g. `std::thread thread(datagram_task);`, and must be running before `send_message` is called.
