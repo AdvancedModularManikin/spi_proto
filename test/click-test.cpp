@@ -9,19 +9,21 @@ void
 click_task(void);
 
 int main(int argc, char *argv[]) {
+  /* Boilerplate. Start the SPI communication thread after initializing the
+   * shared data structure. Then start the task thread.
+   */
 	host_remote_init(&remote);
 	std::thread remote_thread(remote_task);
 	std::thread click_thread(click_task);
-	
+
 	while (1) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
-	
+
 	return 0;
-	
 }
 
-//functions implemented for port
+//just a helper function
 void
 delay_ms(unsigned int ms)
 {
@@ -31,16 +33,16 @@ delay_ms(unsigned int ms)
 void
 click_task(void)
 {
-	//enable 24V rail
 	puts("enabling 24V!");
-	remote_set_gpio(15, 1); //15 is 24V rail
-	
-	
-	//module logic:
-	//wait for start message
-	//begin pressurizing
-	//when pressurized, stop pressurizing and send the "I'm sealed" message to SoM code
+  /* 15 is the 24V rail on the AMMDK V1. We know this by comparing the table in
+   * amm-tiny/source/ammdk-carrier/carrier_gpio.cpp to the AMMDK V1 spreadsheet.
+   */
+	remote_set_gpio(15, 1);
+
 	int wait = 200;
+  /* Again, this number arrived at by comparing the carrier_gpio.cpp table with
+   * the spreadsheet.
+   */
 	uint8_t solenoid_0 = 7;
 	puts("starting clicking!");
 	for (;;) {

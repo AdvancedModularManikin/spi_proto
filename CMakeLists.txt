@@ -32,12 +32,11 @@ add_executable(monitor EXCLUDE_FROM_ALL test/monitor.cpp test/test_util.c src/sp
 target_link_libraries(monitor spiproto pthread)
 target_include_directories(monitor PUBLIC src/ PUBLIC test/)
 
-#TODO can only run on linux
-#click-test: test/click-test.cpp libspiproto.a spi_chunks.o test/test_util.o spi_proto_util.o
-#	#g++ $(CFLAGS) -o click-test test/click-test.cpp -std=c++14 -pthread spi_chunks.o test/test_util.o spi_proto_util.o -L. -lspiproto -I. -Isrc
-#	g++ test/click-test.cpp src/spi_proto_master.cpp src/spi_chunks.cpp -std=c++14 -pthread -x c src/binary_semaphore.c -x c src/spi_proto.c -I. -Isrc/ -x c src/crc16.c -x c src/spi_remote_host.c -o click-test -g
+#these two can only be built on linux
+add_executable(click-test EXCLUDE_FROM_ALL test/click-test.cpp src/spi_proto_master.cpp src/spi_chunks.cpp src/binary_semaphore.c src/spi_proto.c src/crc16.c src/spi_remote_host.c)
+target_link_libraries(click-test spiproto pthread)
+target_include_directories(click-test PUBLIC src/ PUBLIC test/)
 
-#TODO can only run on linux
-#blip-test: test/blip-test.cpp libspiproto.a spi_chunks.o test/test_util.o spi_proto_util.o
-#	#g++ $(CFLAGS) -o blip-test test/blip-test.cpp -std=c++14 -pthread spi_chunks.o test/test_util.o spi_proto_util.o -L. -lspiproto -I. -Isrc
-#	g++ test/blip-test.cpp src/spi_proto_master_datagram.cpp src/spi_chunks.cpp -std=c++14 -pthread -x c src/binary_semaphore.c -x c src/spi_proto.c -I. -Isrc/ -x c src/crc16.c -x c src/spi_remote_host.c -o blip-test -g
+add_executable(blip-test test/blip-test.cpp src/spi_proto_master_datagram.cpp src/spi_chunks.cpp src/binary_semaphore.c src/spi_proto.c src/crc16.c src/spi_remote_host.c)
+target_link_libraries(blip-test spiproto pthread)
+target_include_directories(blip-test PUBLIC src/ PUBLIC test/)
