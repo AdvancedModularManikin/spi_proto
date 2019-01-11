@@ -15,7 +15,7 @@ It requires `heartrateLED.elf` from the `amm-tiny` repo to be on the k66f.
 * -1 if `len` > `SPI_MSG_PAYLOAD_LEN`
 * -2 if no space available to send message
 
-#### `spi_callback`
+#### `*spi_callback`
 The `spi_callback` variable is a callback for received messages.
 
     extern void (*spi_callback)(struct spi_packet*);
